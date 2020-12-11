@@ -1,4 +1,4 @@
-# Test Solaris and FreeBSD using VM inside macos
+# Test FreeBSD, Solaris and AIX
 name: Unix Java CI
 
 on: 
@@ -46,11 +46,13 @@ jobs:
     name: Test JDK 8, aix
     steps:
     - name: Test in AIX
-      uses: uses: JimCronqvist/action-ssh@master    
+      uses: appleboy/ssh-action@master    
       with:
-        hosts: 'oshi@gate.polarhome.com:775'
-        privateKey: ${{ secrets.AIX_PRIVATE_KEY }}
-        command: |
+        host: gate.polarhome.com
+        username: oshi
+        port: 775
+        key: ${{ secrets.AIX_PRIVATE_KEY }}
+        script: |
           cd ~/git/oshi
           git reset --hard HEAD
           git pull
