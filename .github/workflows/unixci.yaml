@@ -38,5 +38,5 @@ jobs:
         with:
           prepare: |
             pkg install jdk-8
-          run: ./mvnw test -B
+          run: ./mvnw -DtrimStackTrace=false test -B -X
 
