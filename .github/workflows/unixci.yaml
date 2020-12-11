@@ -45,14 +45,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Test JDK 8, aix
     steps:
-      - name: Test in AIX
-        uses: uses: JimCronqvist/action-ssh@master
-        with:
-          hosts: 'oshi@gate.polarhome.com:775'
-          privateKey: ${{ secrets.AIX_PRIVATE_KEY }}
-          debug: false
-          command: |
-            cd ~/git/oshi
-            git reset --hard HEAD
-            git pull
-            ./mvnw test -B
+    - name: Test in AIX
+      uses: uses: JimCronqvist/action-ssh@master    
+      with:
+        hosts: 'oshi@gate.polarhome.com:775'
+        privateKey: ${{ secrets.AIX_PRIVATE_KEY }}
+        command: |
+          cd ~/git/oshi
+          git reset --hard HEAD
+          git pull
+          /mvnw test -B
