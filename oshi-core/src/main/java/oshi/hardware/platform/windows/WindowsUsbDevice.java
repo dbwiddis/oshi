@@ -1,11 +1,12 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
 
+import static java.util.Collections.sort;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,22 +55,10 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        // Top level is controllers; they won't be added to the list, but all
-        // their connected devices will be
         for (UsbDevice device : devices) {
-            // Recursively add all child devices
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList;
-    }
-
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(new WindowsUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
     }
 
     private static List<UsbDevice> queryUsbDevices() {
@@ -122,7 +111,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 childDevices.add(deviceAndChildren);
             }
         }
-        Collections.sort(childDevices);
+        sort(childDevices);
         // Finally construct the object and return
         if (nameMap.containsKey(device)) {
             String name = nameMap.get(device);

@@ -7,11 +7,11 @@ package oshi.hardware.platform.mac;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.ComputerSystem;
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
-import oshi.hardware.GraphicsCard;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -66,7 +66,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return MacUsbDevice.getUsbDevices(tree);
+        return MacUsbDeviceJNA.getUsbDevices(tree);
     }
 
     @Override

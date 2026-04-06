@@ -1,11 +1,13 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.sort;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,12 +48,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        // Top level is controllers; they won't be added to the list, but all
-        // their connected devices will be
         for (UsbDevice device : devices) {
-            deviceList.add(new FreeBsdUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList;
@@ -73,7 +70,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         // results with those
         List<String> devices = ExecutingCommand.runNative("lshal");
         if (devices.isEmpty()) {
-            return Collections.emptyList();
+            return emptyList();
         }
         // For each item enumerated, store information in the maps
         String key = "";
@@ -132,13 +129,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         return controllerDevices;
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
     /**
      * Recursively creates FreeBsdUsbDevices by fetching information from maps to populate fields
      *
@@ -151,7 +141,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * @param productIdMap the map of productIds
      * @param serialMap    the map of serial numbers
      * @param hubMap       the map of hubs
-     * @return A SolarisUsbDevice corresponding to this device
+     * @return A FreeBsdUsbDevice corresponding to this device
      */
     private static FreeBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
             Map<String, String> nameMap, Map<String, String> vendorMap, Map<String, String> vendorIdMap,
@@ -164,7 +154,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,
                     productIdMap, serialMap, hubMap));
         }
-        Collections.sort(usbDevices);
+        sort(usbDevices);
         return new FreeBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
                 vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""), devPath,
                 usbDevices);
