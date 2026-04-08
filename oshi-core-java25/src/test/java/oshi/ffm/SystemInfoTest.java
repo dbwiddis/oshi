@@ -32,11 +32,12 @@ public class SystemInfoTest extends oshi.SystemInfoTest {
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
     /**
-     * Test that this platform is implemented..
+     * Test that this platform is implemented.
      */
+    @Override
     @Test
     @SuppressWarnings("deprecation")
-    void testPlatformEnumFFM() {
+    public void testPlatformEnum() {
         assertThat("Unsupported OS", PlatformEnumFFM.getCurrentPlatform(), is(not(PlatformEnumFFM.UNSUPPORTED)));
         // Exercise the main method
         main(null);
