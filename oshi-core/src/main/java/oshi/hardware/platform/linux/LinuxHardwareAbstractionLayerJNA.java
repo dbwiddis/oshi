@@ -15,7 +15,7 @@ import oshi.hardware.UsbDevice;
 
 /**
  * JNA-based Linux hardware abstraction layer. Extends {@link LinuxHardwareAbstractionLayer}, overriding methods as FFM
- * equivalents are migrated to {@link LinuxHardwareAbstractionLayerFFM}.
+ * equivalents are migrated to {@code LinuxHardwareAbstractionLayerFFM}.
  */
 @ThreadSafe
 public final class LinuxHardwareAbstractionLayerJNA extends LinuxHardwareAbstractionLayer {

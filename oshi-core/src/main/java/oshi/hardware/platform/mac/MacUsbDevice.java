@@ -27,7 +27,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * No-arg constructor required so that {@link MacUsbDeviceJNA} and {@link MacUsbDeviceFFM}, which extend this class
+     * No-arg constructor required so that {@link MacUsbDeviceJNA} and {@code MacUsbDeviceFFM}, which extend this class
      * solely to inherit its static helper methods, can compile without an explicit constructor. Neither subclass is
      * ever instantiated; only this class is, via the full constructor.
      */
