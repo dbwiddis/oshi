@@ -12,13 +12,6 @@
   [#3095](https://github.com/oshi/oshi/pull/3095): Add GPU metrics to GraphicsCard - [@dbwiddis](https://github.com/dbwiddis).
 * [#3107](https://github.com/oshi/oshi/pull/3107): Add configurable privilege escalation on Linux - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#3112](https://github.com/oshi/oshi/pull/3112): Move platform detection into PlatformEnum; introduce oshi.ffm.SystemInfo. Deprecate `SystemInfo.getCurrentPlatform()` and `SystemInfoFFM` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3119](https://github.com/oshi/oshi/pull/3119): Fix resource leaks and flaky test in `PrivilegedUtil` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3117](https://github.com/oshi/oshi/pull/3117),
-  [#3120](https://github.com/oshi/oshi/pull/3120),
-  [#3121](https://github.com/oshi/oshi/pull/3121): Port Linux JNA classes to FFM - [@dbwiddis](https://github.com/dbwiddis).
-* [#3122](https://github.com/oshi/oshi/pull/3122): Refactor USB device classes to reduce duplication - [@dbwiddis](https://github.com/dbwiddis).
-* [#3124](https://github.com/oshi/oshi/pull/3124): Fix Windows battery remaining capacity percent not reflecting IOCTL values - [@dbwiddis](https://github.com/dbwiddis).
-* [#3125](https://github.com/oshi/oshi/pull/3125): Refactor PowerSource hierarchy and add Windows FFM implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#3086](https://github.com/oshi/oshi/pull/3086): DXGI-based VRAM detection for Windows GPU adapters - [@dbwiddis](https://github.com/dbwiddis).
@@ -31,6 +24,13 @@
   [#3110](https://github.com/oshi/oshi/pull/3110),
   [#3111](https://github.com/oshi/oshi/pull/3111): Migrate mac HardwareAbstractionLayer JNA to FFM - [@dbwiddis](https://github.com/dbwiddis).
 * [#3113](https://github.com/oshi/oshi/pull/3113): Implement FFM-based CUPS printer support for macOS - [@dbwiddis](https://github.com/dbwiddis).
+* [#3119](https://github.com/oshi/oshi/pull/3119): Fix resource leaks and flaky test in `PrivilegedUtil` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3117](https://github.com/oshi/oshi/pull/3117),
+  [#3120](https://github.com/oshi/oshi/pull/3120),
+  [#3121](https://github.com/oshi/oshi/pull/3121): Port Linux JNA classes to FFM - [@dbwiddis](https://github.com/dbwiddis).
+* [#3122](https://github.com/oshi/oshi/pull/3122): Refactor USB device classes to reduce duplication - [@dbwiddis](https://github.com/dbwiddis).
+* [#3124](https://github.com/oshi/oshi/pull/3124): Fix Windows battery remaining capacity percent not reflecting IOCTL values - [@dbwiddis](https://github.com/dbwiddis).
+* [#3125](https://github.com/oshi/oshi/pull/3125): Refactor PowerSource hierarchy and add Windows FFM implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.10.0 (2026-02-22)
 
