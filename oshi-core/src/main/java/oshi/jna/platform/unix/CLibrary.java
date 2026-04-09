@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 The OSHI Project Contributors
+ * Copyright 2017-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.unix;
@@ -12,7 +12,7 @@ import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.unix.LibCAPI;
 import com.sun.jna.ptr.PointerByReference;
 
-import oshi.util.Util;
+import oshi.jna.util.FileUtilJNA;
 
 /**
  * C library with code common to all *nix-based operating systems. This class should be considered non-API as it may be
@@ -62,7 +62,7 @@ public interface CLibrary extends LibCAPI, Library {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
