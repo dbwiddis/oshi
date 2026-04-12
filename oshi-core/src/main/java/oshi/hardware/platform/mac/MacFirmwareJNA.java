@@ -1,25 +1,27 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
 
 import java.nio.charset.StandardCharsets;
 
+import com.sun.jna.Native;
+import com.sun.jna.platform.mac.IOKit.IOIterator;
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
+
 import oshi.annotation.concurrent.Immutable;
-import oshi.ffm.mac.IOKit.IOIterator;
-import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.hardware.common.platform.mac.MacFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.mac.IOKitUtilFFM;
 import oshi.util.tuples.Quintet;
 
 /**
- * Firmware data obtained from ioreg.
+ * Firmware data obtained from ioreg using JNA.
  */
 @Immutable
-final class MacFirmwareFFM extends MacFirmware {
+final class MacFirmwareJNA extends MacFirmware {
 
     @Override
     protected Quintet<String, String, String, String, String> queryEfi() {
@@ -29,7 +31,8 @@ final class MacFirmwareFFM extends MacFirmware {
         String version = null;
         String releaseDate = null;
 
-        IORegistryEntry platformExpert = IOKitUtilFFM.getMatchingService("IOPlatformExpertDevice");
+        IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        byte[] data;
         if (platformExpert != null) {
             try {
                 IOIterator iter = platformExpert.getChildIterator("IODeviceTree");
@@ -42,29 +45,29 @@ final class MacFirmwareFFM extends MacFirmware {
                                 if (entryName != null) {
                                     switch (entryName) {
                                         case "rom":
-                                            byte[] data = entry.getByteArrayProperty("vendor");
+                                            data = entry.getByteArrayProperty("vendor");
                                             if (data != null) {
-                                                manufacturer = toUtf8(data);
+                                                manufacturer = Native.toString(data, StandardCharsets.UTF_8);
                                             }
                                             data = entry.getByteArrayProperty("version");
                                             if (data != null) {
-                                                version = toUtf8(data);
+                                                version = Native.toString(data, StandardCharsets.UTF_8);
                                             }
                                             data = entry.getByteArrayProperty("release-date");
                                             if (data != null) {
-                                                releaseDate = toUtf8(data);
+                                                releaseDate = Native.toString(data, StandardCharsets.UTF_8);
                                             }
                                             break;
                                         case "chosen":
                                             data = entry.getByteArrayProperty("booter-name");
                                             if (data != null) {
-                                                name = toUtf8(data);
+                                                name = Native.toString(data, StandardCharsets.UTF_8);
                                             }
                                             break;
                                         case "efi":
                                             data = entry.getByteArrayProperty("firmware-abi");
                                             if (data != null) {
-                                                description = toUtf8(data);
+                                                description = Native.toString(data, StandardCharsets.UTF_8);
                                             }
                                             break;
                                         default:
@@ -84,21 +87,21 @@ final class MacFirmwareFFM extends MacFirmware {
                     }
                 }
                 if (Util.isBlank(manufacturer)) {
-                    byte[] data = platformExpert.getByteArrayProperty("manufacturer");
+                    data = platformExpert.getByteArrayProperty("manufacturer");
                     if (data != null) {
-                        manufacturer = toUtf8(data);
+                        manufacturer = Native.toString(data, StandardCharsets.UTF_8);
                     }
                 }
                 if (Util.isBlank(version)) {
-                    byte[] data = platformExpert.getByteArrayProperty("target-type");
+                    data = platformExpert.getByteArrayProperty("target-type");
                     if (data != null) {
-                        version = toUtf8(data);
+                        version = Native.toString(data, StandardCharsets.UTF_8);
                     }
                 }
                 if (Util.isBlank(name)) {
-                    byte[] data = platformExpert.getByteArrayProperty("device_type");
+                    data = platformExpert.getByteArrayProperty("device_type");
                     if (data != null) {
-                        name = toUtf8(data);
+                        name = Native.toString(data, StandardCharsets.UTF_8);
                     }
                 }
             } finally {
@@ -110,9 +113,5 @@ final class MacFirmwareFFM extends MacFirmware {
                 Util.isBlank(description) ? Constants.UNKNOWN : description,
                 Util.isBlank(version) ? Constants.UNKNOWN : version,
                 Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
-    }
-
-    private static String toUtf8(byte[] data) {
-        return new String(data, StandardCharsets.UTF_8).trim().replace("\0", "");
     }
 }
