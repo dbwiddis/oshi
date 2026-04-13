@@ -11,6 +11,19 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * The GlobalMemory class tracks information about the use of a computer's physical memory (RAM) as well as any
  * available virtual memory.
+ * <p>
+ * Example: checking available memory:
+ *
+ * <pre>{@code
+ * GlobalMemory mem = si.getHardware().getMemory();
+ * long totalBytes = mem.getTotal();
+ * long availBytes = mem.getAvailable();
+ * long usedBytes = totalBytes - availBytes;
+ * System.out.printf("Memory: %s used / %s total%n", FormatUtil.formatBytes(usedBytes),
+ *         FormatUtil.formatBytes(totalBytes));
+ * }</pre>
+ *
+ * For swap/virtual memory information, see {@link #getVirtualMemory()}.
  */
 @ThreadSafe
 public interface GlobalMemory {
@@ -37,6 +50,9 @@ public interface GlobalMemory {
 
     /**
      * Virtual memory, such as a swap file.
+     * <p>
+     * Operating systems differ significantly in how they manage virtual memory. See the {@link VirtualMemory} class
+     * documentation for details on Windows commit-charge, Linux overcommit, and macOS compressed-memory models.
      *
      * @return A VirtualMemory object.
      */
