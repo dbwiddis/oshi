@@ -20,6 +20,9 @@ jobs:
         # Baseline support, Current LTS, Current GA, Current EA
         java: [11, 21, 25]
         os: [macos-14, macos-15, macos-26]
+        include:
+          - java: 17
+            os: 'macos-26-intel'
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
 
