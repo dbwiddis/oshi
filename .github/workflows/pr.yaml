@@ -41,6 +41,13 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         java: [11, 21, 25]
+        include:
+          - os: ubuntu-latest
+            coverage-flag: linux
+          - os: macos-latest
+            coverage-flag: macos
+          - os: windows-latest
+            coverage-flag: windows
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}${{ contains(matrix.java, '25') && ' (+ JNA==FFM)' || '' }}
     steps:
@@ -63,4 +70,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
-          flags: ${{ matrix.os }}
+          flags: ${{ matrix.coverage-flag }}
