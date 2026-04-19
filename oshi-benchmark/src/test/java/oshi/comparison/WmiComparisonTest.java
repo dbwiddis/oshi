@@ -7,7 +7,9 @@ package oshi.comparison;
 import static org.assertj.core.api.Assertions.assertThat;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Assumptions;
@@ -97,21 +99,26 @@ class WmiComparisonTest {
         assertThat(ffmByName.keySet()).as("LogicalDisk names").containsExactlyInAnyOrderElementsOf(jnaByName.keySet());
 
         for (String name : jnaByName.keySet()) {
-            int ji = jnaByName.get(name);
-            int fi = ffmByName.get(name);
-            for (LogicalDiskProperty key : LogicalDiskProperty.values()) {
-                String desc = "LogicalDisk " + key + " [" + name + "]";
-                switch (key) {
-                    case NAME, DESCRIPTION, FILESYSTEM, VOLUMENAME, PROVIDERNAME -> assertThat(
-                            WmiUtilFFM.getString(ffm, key, fi)).as(desc).isEqualTo(WmiUtil.getString(jna, key, ji));
-                    case DRIVETYPE -> assertThat(WmiUtilFFM.getUint32(ffm, key, fi)).as(desc)
-                            .isEqualTo(WmiUtil.getUint32(jna, key, ji));
-                    case ACCESS -> assertThat(WmiUtilFFM.getUint16(ffm, key, fi)).as(desc)
-                            .isEqualTo(WmiUtil.getUint16(jna, key, ji));
-                    case SIZE -> assertThat(WmiUtilFFM.getUint64(ffm, key, fi)).as(desc)
-                            .isEqualTo(WmiUtil.getUint64(jna, key, ji));
-                    default -> assertWithinRatio(WmiUtilFFM.getUint64(ffm, key, fi), WmiUtil.getUint64(jna, key, ji),
-                            0.05, desc);
+            List<Integer> jnaIndices = jnaByName.get(name);
+            List<Integer> ffmIndices = ffmByName.get(name);
+            assertThat(ffmIndices).as("LogicalDisk index count [" + name + "]").hasSameSizeAs(jnaIndices);
+            for (int idx = 0; idx < jnaIndices.size(); idx++) {
+                int ji = jnaIndices.get(idx);
+                int fi = ffmIndices.get(idx);
+                for (LogicalDiskProperty key : LogicalDiskProperty.values()) {
+                    String desc = "LogicalDisk " + key + " [" + name + "]";
+                    switch (key) {
+                        case NAME, DESCRIPTION, FILESYSTEM, VOLUMENAME, PROVIDERNAME -> assertThat(
+                                WmiUtilFFM.getString(ffm, key, fi)).as(desc).isEqualTo(WmiUtil.getString(jna, key, ji));
+                        case DRIVETYPE -> assertThat(WmiUtilFFM.getUint32(ffm, key, fi)).as(desc)
+                                .isEqualTo(WmiUtil.getUint32(jna, key, ji));
+                        case ACCESS -> assertThat(WmiUtilFFM.getUint16(ffm, key, fi)).as(desc)
+                                .isEqualTo(WmiUtil.getUint16(jna, key, ji));
+                        case SIZE -> assertThat(WmiUtilFFM.getUint64(ffm, key, fi)).as(desc)
+                                .isEqualTo(WmiUtil.getUint64(jna, key, ji));
+                        default -> assertWithinRatio(WmiUtilFFM.getUint64(ffm, key, fi),
+                                WmiUtil.getUint64(jna, key, ji), 0.05, desc);
+                    }
                 }
             }
         }
@@ -131,7 +138,7 @@ class WmiComparisonTest {
                 .containsExactlyInAnyOrderElementsOf(jnaByName.keySet());
 
         for (String name : jnaByName.keySet()) {
-            int fi = ffmByName.get(name);
+            int fi = ffmByName.get(name).get(0);
             int driveType = WmiUtilFFM.getUint32(ffm, LogicalDiskProperty.DRIVETYPE, fi);
             assertThat(driveType).as("LogicalDisk local DRIVETYPE [%s]", name).isIn(2, 3, 6);
         }
@@ -277,15 +284,22 @@ class WmiComparisonTest {
         assertThat(ffmByKey.keySet()).as("PhysicalMemory keys").containsExactlyInAnyOrderElementsOf(jnaByKey.keySet());
 
         for (String key : jnaByKey.keySet()) {
-            int ji = jnaByKey.get(key);
-            int fi = ffmByKey.get(key);
-            assertThat(WmiUtilFFM.getString(ffm, PhysicalMemoryProperty.BANKLABEL, fi)).as("BANKLABEL [" + key + "]")
-                    .isEqualTo(WmiUtil.getString(jna, PhysicalMemoryProperty.BANKLABEL, ji));
-            assertThat(WmiUtilFFM.getUint64(ffm, PhysicalMemoryProperty.CAPACITY, fi)).as("CAPACITY [" + key + "]")
-                    .isEqualTo(WmiUtil.getUint64(jna, PhysicalMemoryProperty.CAPACITY, ji));
-            assertThat(WmiUtilFFM.getString(ffm, PhysicalMemoryProperty.MANUFACTURER, fi))
-                    .as("MANUFACTURER [" + key + "]")
-                    .isEqualTo(WmiUtil.getString(jna, PhysicalMemoryProperty.MANUFACTURER, ji));
+            List<Integer> jnaIndices = jnaByKey.get(key);
+            List<Integer> ffmIndices = ffmByKey.get(key);
+            assertThat(ffmIndices).as("PhysicalMemory index count [" + key + "]").hasSameSizeAs(jnaIndices);
+            for (int idx = 0; idx < jnaIndices.size(); idx++) {
+                int ji = jnaIndices.get(idx);
+                int fi = ffmIndices.get(idx);
+                assertThat(WmiUtilFFM.getString(ffm, PhysicalMemoryProperty.BANKLABEL, fi))
+                        .as("BANKLABEL [" + key + "#" + idx + "]")
+                        .isEqualTo(WmiUtil.getString(jna, PhysicalMemoryProperty.BANKLABEL, ji));
+                assertThat(WmiUtilFFM.getUint64(ffm, PhysicalMemoryProperty.CAPACITY, fi))
+                        .as("CAPACITY [" + key + "#" + idx + "]")
+                        .isEqualTo(WmiUtil.getUint64(jna, PhysicalMemoryProperty.CAPACITY, ji));
+                assertThat(WmiUtilFFM.getString(ffm, PhysicalMemoryProperty.MANUFACTURER, fi))
+                        .as("MANUFACTURER [" + key + "#" + idx + "]")
+                        .isEqualTo(WmiUtil.getString(jna, PhysicalMemoryProperty.MANUFACTURER, ji));
+            }
         }
     }
 
@@ -303,13 +317,18 @@ class WmiComparisonTest {
         assertThat(ffmByKey.keySet()).as("VideoController keys").containsExactlyInAnyOrderElementsOf(jnaByKey.keySet());
 
         for (String key : jnaByKey.keySet()) {
-            int ji = jnaByKey.get(key);
-            int fi = ffmByKey.get(key);
-            assertThat(WmiUtilFFM.getString(ffm, VideoControllerProperty.NAME, fi)).as("VC NAME [" + key + "]")
-                    .isEqualTo(WmiUtil.getString(jna, VideoControllerProperty.NAME, ji));
-            assertThat(WmiUtilFFM.getString(ffm, VideoControllerProperty.DRIVERVERSION, fi))
-                    .as("VC DRIVERVERSION [" + key + "]")
-                    .isEqualTo(WmiUtil.getString(jna, VideoControllerProperty.DRIVERVERSION, ji));
+            List<Integer> jnaIndices = jnaByKey.get(key);
+            List<Integer> ffmIndices = ffmByKey.get(key);
+            assertThat(ffmIndices).as("VideoController index count [" + key + "]").hasSameSizeAs(jnaIndices);
+            for (int idx = 0; idx < jnaIndices.size(); idx++) {
+                int ji = jnaIndices.get(idx);
+                int fi = ffmIndices.get(idx);
+                assertThat(WmiUtilFFM.getString(ffm, VideoControllerProperty.NAME, fi)).as("VC NAME [" + key + "]")
+                        .isEqualTo(WmiUtil.getString(jna, VideoControllerProperty.NAME, ji));
+                assertThat(WmiUtilFFM.getString(ffm, VideoControllerProperty.DRIVERVERSION, fi))
+                        .as("VC DRIVERVERSION [" + key + "]")
+                        .isEqualTo(WmiUtil.getString(jna, VideoControllerProperty.DRIVERVERSION, ji));
+            }
         }
     }
 
@@ -327,16 +346,21 @@ class WmiComparisonTest {
         assertThat(ffmByKey.keySet()).as("Printer names").containsExactlyInAnyOrderElementsOf(jnaByKey.keySet());
 
         for (String name : jnaByKey.keySet()) {
-            int ji = jnaByKey.get(name);
-            int fi = ffmByKey.get(name);
-            assertThat(WmiUtilFFM.getString(ffm, PrinterProperty.DRIVERNAME, fi))
-                    .as("Printer DRIVERNAME [" + name + "]")
-                    .isEqualTo(WmiUtil.getString(jna, PrinterProperty.DRIVERNAME, ji));
-            // Boolean type validation
-            assertThat(ffm.getValue(PrinterProperty.DEFAULT, fi)).as("Printer DEFAULT [" + name + "]")
-                    .isEqualTo(jna.getValue(PrinterProperty.DEFAULT, ji));
-            assertThat(ffm.getValue(PrinterProperty.LOCAL, fi)).as("Printer LOCAL [" + name + "]")
-                    .isEqualTo(jna.getValue(PrinterProperty.LOCAL, ji));
+            List<Integer> jnaIndices = jnaByKey.get(name);
+            List<Integer> ffmIndices = ffmByKey.get(name);
+            assertThat(ffmIndices).as("Printer index count [" + name + "]").hasSameSizeAs(jnaIndices);
+            for (int idx = 0; idx < jnaIndices.size(); idx++) {
+                int ji = jnaIndices.get(idx);
+                int fi = ffmIndices.get(idx);
+                assertThat(WmiUtilFFM.getString(ffm, PrinterProperty.DRIVERNAME, fi))
+                        .as("Printer DRIVERNAME [" + name + "]")
+                        .isEqualTo(WmiUtil.getString(jna, PrinterProperty.DRIVERNAME, ji));
+                // Boolean type validation
+                assertThat(ffm.getValue(PrinterProperty.DEFAULT, fi)).as("Printer DEFAULT [" + name + "]")
+                        .isEqualTo(jna.getValue(PrinterProperty.DEFAULT, ji));
+                assertThat(ffm.getValue(PrinterProperty.LOCAL, fi)).as("Printer LOCAL [" + name + "]")
+                        .isEqualTo(jna.getValue(PrinterProperty.LOCAL, ji));
+            }
         }
     }
 
@@ -403,27 +427,19 @@ class WmiComparisonTest {
 
     // --- Generic map builders ---
 
-    private static <T extends Enum<T>> Map<String, Integer> buildJnaStringMap(WmiResult<T> result, T keyProp) {
-        Map<String, Integer> map = new HashMap<>();
+    private static <T extends Enum<T>> Map<String, List<Integer>> buildJnaStringMap(WmiResult<T> result, T keyProp) {
+        Map<String, List<Integer>> map = new HashMap<>();
         for (int i = 0; i < result.getResultCount(); i++) {
-            String key = WmiUtil.getString(result, keyProp, i);
-            Integer prev = map.put(key, i);
-            if (prev != null) {
-                throw new IllegalStateException("Duplicate WMI key '" + key + "' at indices " + prev + " and " + i);
-            }
+            map.computeIfAbsent(WmiUtil.getString(result, keyProp, i), k -> new ArrayList<>()).add(i);
         }
         return map;
     }
 
-    private static <T extends Enum<T>> Map<String, Integer> buildFfmStringMap(WbemcliUtilFFM.WmiResult<T> result,
+    private static <T extends Enum<T>> Map<String, List<Integer>> buildFfmStringMap(WbemcliUtilFFM.WmiResult<T> result,
             T keyProp) {
-        Map<String, Integer> map = new HashMap<>();
+        Map<String, List<Integer>> map = new HashMap<>();
         for (int i = 0; i < result.getResultCount(); i++) {
-            String key = WmiUtilFFM.getString(result, keyProp, i);
-            Integer prev = map.put(key, i);
-            if (prev != null) {
-                throw new IllegalStateException("Duplicate WMI key '" + key + "' at indices " + prev + " and " + i);
-            }
+            map.computeIfAbsent(WmiUtilFFM.getString(result, keyProp, i), k -> new ArrayList<>()).add(i);
         }
         return map;
     }
