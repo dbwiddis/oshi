@@ -50,9 +50,9 @@ import oshi.util.tuples.Pair;
  * present. ADL requires an AMD GPU with the ADL library present. LHM requires LibreHardwareMonitor to be running.
  */
 @ThreadSafe
-final class WindowsGpuStats implements GpuStats {
+final class WindowsGpuStatsJNA implements GpuStats {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsGpuStats.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsGpuStatsJNA.class);
 
     private static final long MB_TO_BYTES = 1_048_576L;
 
@@ -71,7 +71,7 @@ final class WindowsGpuStats implements GpuStats {
     // Previous tick snapshot for PDH-based utilization fallback; null = not yet sampled
     private GpuTicks prevUtilTicks;
 
-    WindowsGpuStats(String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId, String cardName) {
+    WindowsGpuStatsJNA(String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId, String cardName) {
         this.luidPrefix = luidPrefix;
         this.lhmParent = lhmParent;
         this.pciBusNumber = pciBusNumber;

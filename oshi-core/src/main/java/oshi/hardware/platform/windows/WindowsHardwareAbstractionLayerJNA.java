@@ -26,7 +26,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  * WindowsHardwareAbstractionLayer class.
  */
 @ThreadSafe
-public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public class WindowsHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -35,17 +35,17 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public GlobalMemory createMemory() {
-        return new WindowsGlobalMemory();
+        return new WindowsGlobalMemoryJNA();
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new WindowsCentralProcessor();
+        return new WindowsCentralProcessorJNA();
     }
 
     @Override
     public Sensors createSensors() {
-        return new WindowsSensors();
+        return new WindowsSensorsJNA();
     }
 
     @Override
@@ -55,37 +55,37 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return WindowsHWDiskStore.getDisks();
+        return WindowsHWDiskStoreJNA.getDisks();
     }
 
     @Override
     public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
-        return WindowsLogicalVolumeGroup.getLogicalVolumeGroups();
+        return WindowsLogicalVolumeGroupJNA.getLogicalVolumeGroups();
     }
 
     @Override
     public List<Display> getDisplays() {
-        return WindowsDisplay.getDisplays();
+        return WindowsDisplayJNA.getDisplays();
     }
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return WindowsNetworkIF.getNetworks(includeLocalInterfaces);
+        return WindowsNetworkIfJNA.getNetworks(includeLocalInterfaces);
     }
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return WindowsUsbDevice.getUsbDevices(tree);
+        return WindowsUsbDeviceJNA.getUsbDevices(tree);
     }
 
     @Override
     public List<SoundCard> getSoundCards() {
-        return WindowsSoundCard.getSoundCards();
+        return WindowsSoundCardJNA.getSoundCards();
     }
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return WindowsGraphicsCard.getGraphicsCards();
+        return WindowsGraphicsCardJNA.getGraphicsCards();
     }
 
     @Override
