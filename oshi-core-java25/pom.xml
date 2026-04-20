@@ -58,6 +58,27 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>de.thetaphi</groupId>
+                <artifactId>forbiddenapis</artifactId>
+                <configuration>
+                    <failOnUnsupportedJava>false</failOnUnsupportedJava>
+                    <bundledSignatures>
+                        <bundledSignature>jdk-unsafe</bundledSignature>
+                        <bundledSignature>jdk-deprecated</bundledSignature>
+                        <bundledSignature>jdk-non-portable</bundledSignature>
+                        <bundledSignature>jdk-reflection</bundledSignature>
+                        <bundledSignature>jdk-system-out</bundledSignature>
+                    </bundledSignatures>
+                    <signaturesFiles>
+                        <signaturesFile>${main.basedir}/config/forbidden-apis.txt</signaturesFile>
+                        <signaturesFile>${main.basedir}/config/jna-forbidden-apis.txt</signaturesFile>
+                    </signaturesFiles>
+                    <suppressAnnotations>
+                        <suppressAnnotation>oshi.annotation.SuppressForbidden</suppressAnnotation>
+                    </suppressAnnotations>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bnd-maven-plugin</artifactId>
                 <configuration>

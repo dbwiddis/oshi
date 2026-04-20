@@ -1,0 +1,3 @@
+@defaultMessage JNA must not be used in this module
+
+com.sun.jna.** @ JNA type referenced from non-JNA module

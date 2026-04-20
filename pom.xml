@@ -26,17 +26,10 @@
 
     <developers>
         <developer>
-            <id>dblock</id>
-            <name>Daniel Doubrovkine</name>
-            <email>dblock@dblock.org</email>
-            <organization>dblock.org</organization>
-            <organizationUrl>http://code.dblock.org/</organizationUrl>
-        </developer>
-        <developer>
             <id>dbwiddis</id>
             <name>Daniel Widdis</name>
             <email>widdis@gmail.com</email>
-            <organization>sometegroup.com</organization>
+            <organization>oshi.ooo</organization>
             <organizationUrl>https://github.com/dbwiddis/</organizationUrl>
         </developer>
     </developers>
@@ -74,7 +67,7 @@
     </distributionManagement>
 
     <properties>
-        <copyright>2010 - 2025</copyright>
+        <copyright>2010 - 2026</copyright>
         <!-- Build Settings -->
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <maven.compiler.source>8</maven.compiler.source>
@@ -265,7 +258,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
-                        <argLine>-Xmx1024m -XX:MaxPermSize=256m
+                        <argLine>-Xmx1024m
                             ${enable.native.access}</argLine>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <forkCount>4</forkCount>
@@ -756,7 +749,7 @@
                         <bundledSignature>jdk-system-out</bundledSignature>
                     </bundledSignatures>
                     <signaturesFiles>
-                        <signaturesFile>../config/forbidden-apis.txt</signaturesFile>
+                        <signaturesFile>${main.basedir}/config/forbidden-apis.txt</signaturesFile>
                     </signaturesFiles>
                     <suppressAnnotations>
                         <suppressAnnotation>oshi.annotation.SuppressForbidden</suppressAnnotation>

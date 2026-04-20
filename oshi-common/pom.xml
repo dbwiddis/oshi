@@ -56,10 +56,8 @@
                         <bundledSignature>jdk-system-out</bundledSignature>
                     </bundledSignatures>
                     <signaturesFiles>
-                        <!-- Inherited rules -->
-                        <signaturesFile>../config/forbidden-apis.txt</signaturesFile>
-                        <!-- JNA and FFM must never appear in oshi-common -->
-                        <signaturesFile>../config/native-forbidden-apis.txt</signaturesFile>
+                        <signaturesFile>${main.basedir}/config/forbidden-apis.txt</signaturesFile>
+                        <signaturesFile>${main.basedir}/config/native-forbidden-apis.txt</signaturesFile>
                     </signaturesFiles>
                     <suppressAnnotations>
                         <suppressAnnotation>oshi.annotation.SuppressForbidden</suppressAnnotation>
