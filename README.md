@@ -34,15 +34,15 @@ Documentation
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Version
-  * JDK8: [oshi-core-6.11.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.11.1)
-  * JPMS: [oshi-core-java11-6.11.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.11.1)
-  * FFM: [oshi-core-java25-6.11.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.11.1)
+  * JDK8: [oshi-core-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0)
+  * JPMS: [oshi-core-java11-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.12.0)
+  * FFM: [oshi-core-java25-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.12.0)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-6.12.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.12.0-SNAPSHOT)
-  * JPMS: [oshi-core-java11-6.12.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.12.0-SNAPSHOT/)
-  * FFM: [oshi-core-java25-6.12.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/6.12.0-SNAPSHOT/)
+  * JDK8: [oshi-core-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT)
+  * JPMS: [oshi-core-java11-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/7.0.0-SNAPSHOT/)
+  * FFM: [oshi-core-java25-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/7.0.0-SNAPSHOT/)
 
 OSHI Java 25+ Module
 ----------------------------

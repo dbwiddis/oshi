@@ -1,6 +1,13 @@
-# 6.12.0 (in progress)
+# 7.0.0 (in progress)
+
+* Coming Soon!
+
+# 6.12.0 (2026-04-20)
 
 ##### New Features
+
+Complete migration to new FFM module.
+
 * [#3127](https://github.com/oshi/oshi/pull/3127): Add oshi-benchmark module with JMH benchmarks comparing JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 * [#3130](https://github.com/oshi/oshi/pull/3130),
   [#3132](https://github.com/oshi/oshi/pull/3132),
@@ -28,17 +35,17 @@
 * [#3154](https://github.com/oshi/oshi/pull/3154): Improve API documentation: usage examples, platform notes, cross-references, JEP 472 guidance, and virtual memory model differences - [@dbwiddis](https://github.com/dbwiddis).
 * [#3160](https://github.com/oshi/oshi/pull/3160): Fix LinuxSensors fan and voltage discovery passing wrong path to getSensorFilesFromPath - [@dbwiddis](https://github.com/dbwiddis).
 * [#3161](https://github.com/oshi/oshi/pull/3161): Add Linux hardware unit tests; fix parseDecimalMemorySizeToBinary for single-char suffixes; use platform-independent path separators - [@dbwiddis](https://github.com/dbwiddis).
-* [#3164](https://github.com/oshi/oshi/pull/3164): Refactor Windows perfmon counter enums into oshi-common for sharing between JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
-* [#3167](https://github.com/oshi/oshi/pull/3167): Add PerfCounterQueryFFM for multi-counter PDH queries with WMI fallback; improve per-counter error resilience in both JNA and FFM paths - [@dbwiddis](https://github.com/dbwiddis).
-* [#3168](https://github.com/oshi/oshi/pull/3168): Add PerfCounterWildcardQueryFFM with PdhEnumObjectItems FFM binding; refactor LoadAverage into abstract base with JNA/FFM subclasses - [@dbwiddis](https://github.com/dbwiddis).
+* [#3164](https://github.com/oshi/oshi/pull/3164),
+  [#3167](https://github.com/oshi/oshi/pull/3167),
+  [#3168](https://github.com/oshi/oshi/pull/3168),
 * [#3170](https://github.com/oshi/oshi/pull/3170): Complete FFM perfmon driver migration with all wildcard and non-wildcard counters; add PDH vs WMI and JNA vs FFM comparison tests - [@dbwiddis](https://github.com/dbwiddis).
 * [#3171](https://github.com/oshi/oshi/pull/3171): Add FFM registry drivers for HKEY_PERFORMANCE_DATA process and thread data; extract PerfCounterBlock POJOs to oshi-common - [@dbwiddis](https://github.com/dbwiddis).
 * [#3172](https://github.com/oshi/oshi/pull/3172): Extract common Windows perfmon/registry driver code to oshi-common; reduce duplication between JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
-* [#3173](https://github.com/oshi/oshi/pull/3173): Migrate Win32LogicalDisk WMI driver to common/JNA/FFM pattern; add WbemcliUtilFFM, WmiUtilFFM, and WmiComparisonTest - [@dbwiddis](https://github.com/dbwiddis).
-* [#3174](https://github.com/oshi/oshi/pull/3174): Migrate all remaining WMI drivers to common/JNA/FFM three-tier pattern - [@dbwiddis](https://github.com/dbwiddis).
-* [#3175](https://github.com/oshi/oshi/pull/3175): Migrate simple WMI-only Windows hardware classes (Baseboard, Firmware, ComputerSystem, Printer) to FFM - [@dbwiddis](https://github.com/dbwiddis).
-* [#3176](https://github.com/oshi/oshi/pull/3176): Migrate all remaining Windows hardware classes to FFM three-tier pattern (Sensors, GpuStats, GlobalMemory, VirtualMemory, LogicalVolumeGroup, SoundCard, NetworkIF, GraphicsCard, Display, UsbDevice, HWDiskStore, CentralProcessor) - [@dbwiddis](https://github.com/dbwiddis).
-* [#3177](https://github.com/oshi/oshi/pull/3177): Migrate Windows software OS classes (OSProcess, OSThread, FileSystem, InstalledApps, InternetProtocolStats, NetworkParams) to FFM three-tier pattern - [@dbwiddis](https://github.com/dbwiddis).
+* [#3173](https://github.com/oshi/oshi/pull/3173),
+  [#3174](https://github.com/oshi/oshi/pull/3174): Migrate WMI drivers to FFM - [@dbwiddis](https://github.com/dbwiddis).
+* [#3175](https://github.com/oshi/oshi/pull/3175),
+  [#3176](https://github.com/oshi/oshi/pull/3176): Migrate all remaining Windows hardware classes to FFM  - [@dbwiddis](https://github.com/dbwiddis).
+* [#3177](https://github.com/oshi/oshi/pull/3177): Migrate Windows software OS classes to FFM - [@dbwiddis](https://github.com/dbwiddis).
 * [#3178](https://github.com/oshi/oshi/pull/3178): Remove oshi-core source tree from oshi-core-java25; port Windows sessions, services, and remaining OS classes to FFM - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
