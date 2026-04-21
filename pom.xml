@@ -364,8 +364,8 @@
                                 <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
                             </manifestEntries>
                         </archive>
-                        <source>8</source>
-                        <skippedModules>oshi-core-ffm,oshi-benchmark</skippedModules>
+                        <release>${java.specification.version}</release>
+                        <source>${java.specification.version}</source>
                         <detectLinks>false</detectLinks>
                         <links>
                             <link>https://java-native-access.github.io/jna/${jna.version}/javadoc/</link>
@@ -900,6 +900,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

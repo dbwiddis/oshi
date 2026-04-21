@@ -13,3 +13,4 @@ oshi-benchmark/dependency-reduced-pom.xml
 lib/
 release.properties
 *.releaseBackup
+bin/

@@ -83,17 +83,13 @@
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bnd-maven-plugin</artifactId>
                 <configuration>
-                    <bnd><![CDATA[Export-Package: oshi.ffm.*,!oshi.driver.common.*,oshi.driver.*,oshi.hardware.platform.*,!oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true
-                    Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
-                    Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
-                    -snapshot: SNAPSHOT]]></bnd>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <source>25</source>
                     <includeDependencySources>true</includeDependencySources>
                     <dependencySourceIncludes>
                         <dependencySourceInclude>com.github.oshi:oshi-common</dependencySourceInclude>
@@ -120,7 +116,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <source>25</source>
                     <includeDependencySources>true</includeDependencySources>
                     <dependencySourceIncludes>
                         <dependencySourceInclude>com.github.oshi:oshi-common</dependencySourceInclude>

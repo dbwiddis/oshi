@@ -1,5 +1,21 @@
 /**
- * This module provides access to the OSHI API and utility functions.
+ * JNA-based native implementation of the OSHI API for JDK 8+.
+ * <p>
+ * This module uses <a href="https://github.com/java-native-access/jna">JNA</a> for native access and supports all OSHI
+ * platforms (Windows, macOS, Linux, Android, FreeBSD, OpenBSD, Solaris, AIX).
+ * <p>
+ * Usage:
+ *
+ * <pre>{@code
+ * SystemInfo si = new SystemInfo();
+ * HardwareAbstractionLayer hal = si.getHardware();
+ * OperatingSystem os = si.getOperatingSystem();
+ * }</pre>
+ *
+ * Re-using the same {@link oshi.SystemInfo} instance optimizes caching and CPU performance; creating a new instance
+ * minimizes memory usage.
+ *
+ * @see oshi.SystemInfo
  */
 module com.github.oshi {
     // API

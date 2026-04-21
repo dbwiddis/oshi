@@ -6,6 +6,24 @@
  * [oshi-core API] Provides a cross-platform implementation to retrieve Operating System and Hardware Information, such
  * as OS version, memory, CPU, disk, devices, sensors, etc.
  *
+ * <h2>Quick Start</h2>
+ *
+ * <pre>{@code
+ * SystemInfo si = new SystemInfo();
+ * HardwareAbstractionLayer hal = si.getHardware();
+ * OperatingSystem os = si.getOperatingSystem();
+ *
+ * // CPU usage (blocks for 1 second)
+ * double cpuLoad = hal.getProcessor().getSystemCpuLoad(1000L);
+ *
+ * // Memory
+ * GlobalMemory mem = hal.getMemory();
+ * long availableBytes = mem.getAvailable();
+ * }</pre>
+ *
+ * Re-using the same {@link oshi.SystemInfo} instance optimizes caching and CPU performance; creating a new instance
+ * minimizes memory usage.
+ *
  * <h2>Module Architecture</h2>
  *
  * OSHI is organized into three modules:

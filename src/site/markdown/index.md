@@ -3,7 +3,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.github.oshi&amp;sort=name)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
-[![Openhub Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
+![GitHub contributors](https://img.shields.io/github/contributors/oshi/oshi)
 
 OSHI is a free native (JNA or FFM) Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a
@@ -12,7 +12,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 OSHI provides two native access implementations:
 - **JNA** (`oshi-core`): Uses [Java Native Access](https://github.com/java-native-access/jna). Supports JDK 8+. JPMS module: `com.github.oshi`.
-- **FFM** (`oshi-core-ffm`): Uses the JDK [Foreign Function &amp; Memory API](https://openjdk.org/jeps/454). Requires JDK 25+.
+- **FFM** (`oshi-core-ffm`): Uses the JDK [Foreign Function &amp; Memory API](https://openjdk.org/jeps/454). Requires JDK 25+. JPMS module: `com.github.oshi.ffm`.
 
 Supported Platforms
 ---------------------------
@@ -23,9 +23,9 @@ Supported Platforms
 
 Documentation
 -------------
-* [API](https://oshi.github.io/oshi/oshi-core/apidocs/) (javadocs)
+* Javadocs — [JNA](https://oshi.github.io/oshi/oshi-core/apidocs/) \| [FFM](https://oshi.github.io/oshi/oshi-core-ffm/apidocs/)
 * [FAQ](src/site/markdown/FAQ.md)
-* [Change Log](CHANGELOG.md)
+* [Change Log](https://github.com/oshi/oshi/blob/master/CHANGELOG.md)
 * [Performance Considerations](src/site/markdown/Performance.md)
 * [Major Version Breaking Changes](src/site/markdown/Upgrading.md)
 * [Sample Output](src/site/markdown/SampleOutput.md)
@@ -33,15 +33,17 @@ Documentation
 
 Downloads and Dependency Management
 -----------------------------------
-Stable Release Version
-  * JNA/JDK8: [oshi-core-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0)
+Stable Release Versions
+  * JNA: [oshi-core-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0)
   * JPMS: [oshi-core-java11-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.12.0)
   * FFM: [oshi-core-java25-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.12.0)
-  * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
-Current Development (SNAPSHOT) downloads
-  * JNA/JDK8: [oshi-core-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT)
+Current Development (SNAPSHOT) Versions
+  * JNA: [oshi-core-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT)
   * FFM: [oshi-core-ffm-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.0-SNAPSHOT/)
+
+Legacy Version
+  * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 OSHI FFM Module
 ----------------------------
@@ -94,7 +96,7 @@ git clone https://github.com/oshi/oshi.git && cd oshi
   -Dexec.classpathScope="test"
 ```
 
-Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-core/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
+Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-common/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://oshi.github.io/oshi/oshi-common/apidocs/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
 
 The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
 
