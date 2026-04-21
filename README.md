@@ -5,31 +5,21 @@
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 [![Openhub Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 
-OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
+OSHI is a free native (JNA or FFM) Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a
 cross-platform implementation to retrieve system information, such as OS version, processes,
 memory and CPU usage, disks and partitions, devices, sensors, etc.
 
-- [Supported Platforms](#supported-platforms)
-- [Downloads and Dependency Management](#downloads-and-dependency-management)
-- [Documentation](#documentation)
-- [Usage](#usage)
-- [Supported Features](#supported-features)
-- [Support](#support)
-- [OSHI for Enterprise](#oshi-for-enterprise)
-- [Security Contact Information](#security-contact-information)
-- [Continuous Integration Test Status](#continuous-integration-test-status)
-- [How Can I Help?](#how-can-i-help)
-- [Contributing to OSHI](#contributing-to-oshi)
-- [Acknowledgments](#acknowledgments)
-- [License](#license)
+OSHI provides two native access implementations:
+- **JNA** (`oshi-core`): Uses [Java Native Access](https://github.com/java-native-access/jna). Supports JDK 8+.
+- **FFM** (`oshi-core-java25`): Uses the JDK [Foreign Function & Memory API](https://openjdk.org/jeps/454). Requires JDK 25+.
 
 Supported Platforms
 ---------------------------
 - Windows
 - macOS
 - Linux (Android)
-- UNIX (AIX, FreeBSD, OpenBSD, Solaris)
+- UNIX (AIX, FreeBSD, OpenBSD, Solaris) — JNA only
 
 Documentation
 -------------
@@ -56,19 +46,26 @@ Current Development (SNAPSHOT) downloads
 
 OSHI Java 25+ Module
 ----------------------------
-A new module, **`oshi-core-java25`**, is now available.
+The **`oshi-core-java25`** module provides a complete implementation using the JDK Foreign Function & Memory (FFM) API, with no dependency on JNA.
 
-- **Purpose:** This module intends to provide API-compatible implementations using the JDK Foreign Function & Memory (FFM) API, replacing JNA for native access over time with community contributions.
 - **Compatibility:**
-  - Compiles on **JDK 25+**.
-  - Initial support is limited to operating systems with JDK 25 builds; broader OS support and migration of more native implementations will follow.
-  - Contributions are welcome and encouraged!
+  - Requires **JDK 25+**.
+  - Supports Windows, macOS, and Linux.
 - **Usage:**
   - Use this dependency **in place of** `oshi-core`.
   - Import `oshi.ffm.SystemInfo` instead of `oshi.SystemInfo` as the entry-point.
-  - All other imports (oshi.hardware.*, oshi.software.os.*) remain unchanged.
-- **Status:**
-  - Some methods still delegate to legacy JNA-based internals until their FFM equivalents are implemented.
+  - API imports (oshi.hardware.*, oshi.software.os.*) remain unchanged.
+- **Benefits:**
+  - Uses JDK-standard APIs for native access, improving long-term maintainability.
+  - Potential performance improvements by eliminating JNA overhead. See the [`oshi-benchmark`](https://github.com/oshi/oshi/blob/master/oshi-benchmark/) module for JMH comparisons.
+
+OSHI Common Module
+----------------------------
+The **`oshi-common`** module contains shared code used by both the JNA and FFM implementations, including API interfaces, abstract base classes, and a significant amount of default implementation logic that parses procfs, sysfs, and command-line output without any native calls.
+
+- **No native dependencies** — does not require JNA, FFM, or `--enable-native-access`.
+- Suitable for restricted JVM environments or use cases where full native access is unnecessary, such as Linux CPU and memory monitoring via `/proc` and `/sys`.
+- Can be used standalone by extending the abstract base classes with your own platform-specific logic.
 
 Usage
 -----
@@ -170,7 +167,7 @@ Continuous Integration Test Status
 [![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
 [![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=security_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/28367.svg)](https://scan.coverity.com/projects/oshi-oshi)
-[![Codacy Grade](https://app.codacy.com/project/badge/Grade/4002c92342814fe1989a7841d9f427f1)](https://www.codacy.com/gh/oshi/oshi/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=oshi/oshi&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/4002c92342814fe1989a7841d9f427f1)](https://app.codacy.com/gh/oshi/oshi/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![CodeQL](https://github.com/oshi/oshi/workflows/CodeQL/badge.svg)](https://github.com/oshi/oshi/security/code-scanning)
 [![Coverage Status](https://codecov.io/github/oshi/oshi/graph/badge.svg?token=XpNPRyv8TJ)](https://codecov.io/github/oshi/oshi)
 
@@ -198,6 +195,7 @@ Acknowledgments
 Many thanks to the following companies for providing free support of Open Source projects including OSHI:
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
 * [GitHub Actions](https://github.com/features/actions), [AppVeyor](https://www.appveyor.com/), and [Cirrus CI](https://cirrus-ci.org/) for continuous integration testing
+* [CodeRabbit](https://www.coderabbit.ai/) for automated code review
 * The [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate CPU bottlenecks
 
 License

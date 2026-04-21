@@ -8,7 +8,8 @@
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
-    <description>Parent POM for OSHI</description>
+    <description>A free native (JNA or FFM) Operating System and Hardware Information library for Java that aims to provide a
+        cross-platform implementation to retrieve system information, such as OS version, processes, memory, CPU, disk, battery, etc.</description>
     <url>https://github.com/oshi/oshi</url>
     <inceptionYear>2010</inceptionYear>
     <organization>

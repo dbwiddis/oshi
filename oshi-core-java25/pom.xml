@@ -12,7 +12,8 @@
     <packaging>jar</packaging>
 
     <name>oshi-core-java25</name>
-    <description>oshi-core implementation using FFM</description>
+    <description>An FFM-based (native) operating system information library for Java that aims to provide a
+        cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
