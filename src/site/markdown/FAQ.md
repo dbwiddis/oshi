@@ -24,17 +24,16 @@
 
 ## What is the intended use of the API?
 
-Users should create a new instance of [SystemInfo](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/SystemInfo.html) and use the getters from this class to access the platform-specific hardware and software interfaces using the respective `get*()` methods. The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality. See the `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for sample code.
+Users should create a new instance of SystemInfo ([JNA](https://oshi.github.io/oshi/oshi-core/apidocs/com.github.oshi/oshi/SystemInfo.html) \| [FFM](https://oshi.github.io/oshi/oshi-core-ffm/apidocs/com.github.oshi.ffm/oshi/ffm/SystemInfo.html)) and use the getters from this class to access the platform-specific hardware and software interfaces using the respective `get*()` methods. The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality. See the `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for sample code.
 
 Methods return a "snapshot" of current levels. To display values which change over time, it is intended that users poll for information no more frequently than approximately every second. Disk and file system calls may incur some latency and should be polled less frequently.
 CPU usage calculation precision depends on the relation of the polling interval to both system clock tick granularity and the number of logical processors.
 
 ## Is the API backwards compatible between versions?
 
-The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible with the same major version. Differences between major versions can be found in the [Upgrading.md](Upgrading.md) document.
+OSHI follows [Semantic Versioning](https://semver.org/). The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible within the same major version. Classes and interfaces annotated with `@PublicApi` are part of this contract. Differences between major versions can be found in the [Upgrading.md](Upgrading.md) document.
 
-Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.driver` and `oshi.util` packages may,
-rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
+Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.driver` and `oshi.util` packages may, rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
 
 Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
 
@@ -56,7 +55,7 @@ requires com.github.oshi;     // JNA
 requires com.github.oshi.ffm; // FFM
 ```
 
-Note: In OSHI 6.x, `oshi-core` only had an `Automatic-Module-Name` and a separate `oshi-core-java11` artifact provided the full module descriptor. Starting with OSHI 7.0, `oshi-core` includes the module descriptor directly and `oshi-core-java11` is a deprecated relocation artifact.
+Note: In OSHI 6.x, `oshi-core` only had an `Automatic-Module-Name` and a separate `oshi-core-java11` artifact provided the full module descriptor. Starting with OSHI 7.0, `oshi-core` includes the module descriptor directly.
 
 ## Is OSHI Thread Safe?
 
@@ -75,9 +74,11 @@ Earlier versions do not guarantee thread safety, and it should not be assumed.
 
 ## What minimum Java version is required?
 
-OSHI 4.x and later require minimum Java 8 compatibility. This minimum level will be retained through at least OpenJDK 8 EOL.
+OSHI 4.x and later require minimum Java 8 compatibility for the JNA implementation (`oshi-core`). This minimum level will be retained through at least OpenJDK 8 EOL.
 
-OSHI 3.x is compatible with Java 7 up to 3.13.x versions.  OSHI 3.14.0 restored Java 6 compatibility for the `oshi-core` artifact only. While no new features are envisioned for this branch, bug fixes will be considered if requested on a case basis, particularly if fixed in a later version.
+Starting with OSHI 7.x, the FFM implementation (`oshi-core-ffm`) requires JDK 25+. The Foreign Function & Memory API became final in JDK 22 (JEP 454), but OSHI targets JDK 25 as the first LTS release with FFM support.
+
+OSHI 3.x is compatible with Java 7 up to 3.13.x versions. OSHI 3.14.0 restored Java 6 compatibility for the `oshi-core` artifact only. These versions are no longer actively maintained.
 
 ## Which operating systems are supported?
 
@@ -90,6 +91,8 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Solaris 11 (SunOS 5.11)
 * AIX 7.1 (POWER4)
 * Android 7.0 and higher
+
+The FFM implementation (`oshi-core-ffm`) supports Windows, macOS, and Linux only, and assumes a 64-bit operating system.
 
 ## How can I get reliable sensor information on Windows?
 
@@ -193,7 +196,7 @@ products and have completely abandoned SIGAR. The [last release](https://github.
 was in 2010 and the [last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
 was in 2015. [Multiple independent forks](https://github.com/hyperic/sigar/issues/95) by existing users attempt
 to fix specific bugs/incompatibilities but none has emerged as a maintained/released fork.  In contrast, OSHI's
-development has been entirely done by open source volunteers, and it is under active development as of 2021.
+development has been entirely done by open source volunteers, and it is under active development as of 2026.
  - **Support** SIGAR is completely unsupported by its authors, and there is no organized community support.
 OSHI is supported actively to fix bugs, respond to questions, and implement new features.
 
