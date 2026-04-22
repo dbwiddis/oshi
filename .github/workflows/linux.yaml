@@ -36,7 +36,7 @@ jobs:
       - name: Forbidden APIs
         run: ./mvnw forbiddenapis:check forbiddenapis:testCheck
       - name: Javadoc
-        run: ./mvnw javadoc:javadoc javadoc:aggregate -DskipTests
+        run: ./mvnw javadoc:javadoc -DskipTests
 
   # Runs full project on multiple JDKs
   testmatrix:

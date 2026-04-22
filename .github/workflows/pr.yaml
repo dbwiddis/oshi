@@ -33,7 +33,7 @@ jobs:
       - name: Forbidden APIs
         run: ./mvnw forbiddenapis:check forbiddenapis:testCheck
       - name: Javadoc
-        run: ./mvnw javadoc:javadoc javadoc:aggregate -DskipTests
+        run: ./mvnw javadoc:javadoc -DskipTests
 
   test:
     runs-on: ${{ matrix.os }}

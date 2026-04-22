@@ -43,6 +43,7 @@ Current Development (SNAPSHOT) Versions
   * FFM: [oshi-core-ffm-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.0-SNAPSHOT/)
 
 Legacy Version
+  * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 OSHI FFM Module

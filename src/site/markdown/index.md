@@ -43,6 +43,7 @@ Current Development (SNAPSHOT) Versions
   * FFM: [oshi-core-ffm-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.0-SNAPSHOT/)
 
 Legacy Version
+  * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 OSHI FFM Module
@@ -196,7 +197,7 @@ Acknowledgments
 Many thanks to the following companies for providing free support of Open Source projects including OSHI:
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
 * [GitHub Actions](https://github.com/features/actions), [AppVeyor](https://www.appveyor.com/), and [Cirrus CI](https://cirrus-ci.org/) for continuous integration testing
-* [CodeRabbit](https://www.coderabbit.ai/) for automated code review
+* [CodeRabbit](https://www.coderabbit.ai/) for automated AI code review
 * The [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate CPU bottlenecks
 
 License

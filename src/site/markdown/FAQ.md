@@ -44,11 +44,19 @@ OSHI adds OSGi manifest entries using `maven-source-plugin` and `mvn-bnd-plugin`
 
 ## Does OSHI support Java Module System (JPMS) modules?
 
-OSHI publishes an `oshi-core-java11` artifact with a full module descriptor (and only modular dependencies), which will allow the existing API to be placed on the module path. This artifact shares the same API as `oshi-core`.
+Yes. OSHI provides two named JPMS modules:
 
-The `oshi-core` artifact includes `Automatic-Module-Name` of `com.github.oshi` in its manifest.  However, Java Module System users are encouraged to use the `oshi-core-java11` artifact to take full advantage of modularization.
+- `com.github.oshi` — the JNA-based implementation (`oshi-core`). Works on JDK 8+ on the classpath; JDK 9+ on the module path.
+- `com.github.oshi.ffm` — the FFM-based implementation (`oshi-core-ffm`). Requires JDK 25+.
 
-More fine grained modularization is being considered in a possible future major API rewrite targeting JDK 21 compatibility and leveraging features from Project Panama (JEP-370, JEP-383, and JEP-389). If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
+Both modules export the public API packages and declare the appropriate `requires` directives. Add the one that matches your native access preference to your `module-info.java`:
+
+```java
+requires com.github.oshi;     // JNA
+requires com.github.oshi.ffm; // FFM
+```
+
+Note: In OSHI 6.x, `oshi-core` only had an `Automatic-Module-Name` and a separate `oshi-core-java11` artifact provided the full module descriptor. Starting with OSHI 7.0, `oshi-core` includes the module descriptor directly and `oshi-core-java11` is a deprecated relocation artifact.
 
 ## Is OSHI Thread Safe?
 
