@@ -10,7 +10,9 @@ import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -31,6 +33,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests FileUtil
@@ -235,5 +238,58 @@ class FileUtilTest {
         } catch (IOException e) {
             fail("IO Exception deleting temporary procIo file.");
         }
+    }
+
+    @Test
+    void testReadFileNoReportError(@TempDir Path tempDir) {
+        String missing = tempDir.resolve("missing.txt").toString();
+        assertThat(FileUtil.readFile(missing, false), is(empty()));
+    }
+
+    @Test
+    void testReadLinesFromFile(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("lines.txt");
+        Files.write(file, "line1\nline2\nline3\nline4\nline5\n".getBytes(StandardCharsets.UTF_8));
+
+        List<String> lines = FileUtil.readLines(file.toString(), 3);
+        assertThat("should read 3 lines", lines, hasSize(3));
+        assertThat(lines.get(0), is("line1"));
+        assertThat(lines.get(2), is("line3"));
+
+        // Read more lines than exist
+        lines = FileUtil.readLines(file.toString(), 100);
+        assertThat("should read all 5 lines", lines, hasSize(5));
+
+        Files.deleteIfExists(file);
+
+        // Non-existent file after deletion
+        assertThat(FileUtil.readLines(file.toString(), 1), is(empty()));
+    }
+
+    @Test
+    void testReadLinesNoReportError(@TempDir Path tempDir) {
+        String missing = tempDir.resolve("missing.txt").toString();
+        assertThat(FileUtil.readLines(missing, 1, false), is(empty()));
+    }
+
+    @Test
+    void testReadAllBytesNoReportError(@TempDir Path tempDir) {
+        String missing = tempDir.resolve("missing.bin").toString();
+        byte[] result = FileUtil.readAllBytes(missing, false);
+        assertThat(result.length, is(0));
+    }
+
+    @Test
+    void testGetFileName() {
+        assertThat(FileUtil.getFileName("/usr/bin/dmidecode"), is("dmidecode"));
+        assertThat(FileUtil.getFileName("dmidecode"), is("dmidecode"));
+        assertThat(FileUtil.getFileName(""), is(""));
+        assertThat(FileUtil.getFileName(null), is(""));
+    }
+
+    @Test
+    void testReadSymlinkTargetNonSymlink(@TempDir Path tempDir) throws IOException {
+        Path file = Files.createFile(tempDir.resolve("regular.txt"));
+        assertThat(FileUtil.readSymlinkTarget(file.toFile()), is(nullValue()));
     }
 }
