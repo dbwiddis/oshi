@@ -10,6 +10,8 @@
   * [How can I get reliable sensor information on Windows?](#how-can-i-get-reliable-sensor-information-on-windows)
   * [How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?](#how-do-i-resolve-pdh-call-failed-with-error-code-0xc0000bb8-issues)
   * [How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?](#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues)
+  * [Does OSHI work in containers (Docker, Kubernetes)?](#does-oshi-work-in-containers-docker-kubernetes)
+  * [How do I get CPU usage?](#how-do-i-get-cpu-usage)
   * [Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-system-and-processor-cpu-usage-differ-from-the-windows-task-manager)
   * [Why does OSHI's Process CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-process-cpu-usage-differ-from-the-windows-task-manager)
   * [Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?](#why-does-oshi-freeze-for-20-seconds-or-larger-multiples-of-20-seconds-on-windows-when-it-first-starts-up)
@@ -138,6 +140,100 @@ For Android, see the [JNA FAQ](https://github.com/java-native-access/jna/blob/ma
    - In Maven (`pom.xml`), you'll need to specify `<type>aar</type>`
    - In both cases you should add an exclusion to your `oshi-core` dependency for the (default) `jna` JAR artifact.
  - In ProGuard, use `-keep` directives to prevent obfuscating JNA classes
+
+## Does OSHI work in containers (Docker, Kubernetes)?
+
+OSHI reads from the same OS-level sources (procfs, sysfs, WMI, etc.) regardless of whether it runs inside a container. This means it generally reports **host-level** information, not container-scoped values. Common issues reported by users include:
+
+ - **CPU ticks reflect the host.** `getSystemCpuLoadTicks()` reads `/proc/stat`, which shows all host CPUs even when the container has a CPU limit. On Windows Server 2019 containers, performance counters may be entirely absent, causing all tick values to be zero ([#1976](https://github.com/oshi/oshi/issues/1976), [#2217](https://github.com/oshi/oshi/issues/2217)).
+ - **Memory reports host totals.** `getTotal()` returns the host's physical memory, not the cgroup memory limit ([#893](https://github.com/oshi/oshi/issues/893)).
+ - **Missing native libraries.** Minimal base images (Alpine, distroless) may lack `libudev`, causing `UnsatisfiedLinkError` when accessing the processor or disk stores. Ensure your image includes `libudev` or use OSHI 6.2+ which added a fallback ([#2032](https://github.com/oshi/oshi/issues/2032), [#2092](https://github.com/oshi/oshi/issues/2092)).
+ - **Hardware identifiers are unavailable.** Serial numbers, baseboard info, and disk details are typically not exposed to containers and will return "unknown" ([#2620](https://github.com/oshi/oshi/issues/2620)).
+ - **File store duplication.** Docker's overlay mounts can cause the same device to appear multiple times in `getFileStores()` ([#438](https://github.com/oshi/oshi/issues/438)).
+
+If you need container-scoped resource limits rather than host values, read them directly from the cgroup filesystem. OSHI's `FileUtil` class (in the `oshi.util` package) can read these files. On **cgroup v2** (default on modern kernels and Kubernetes):
+
+```java
+// CPU limit: "200000 100000" means 200ms quota per 100ms period = 2 CPUs
+String cpuMax = FileUtil.getStringFromFile("/sys/fs/cgroup/cpu.max");
+
+// Memory limit (bytes), or "max" if unlimited
+String memMax = FileUtil.getStringFromFile("/sys/fs/cgroup/memory.max");
+
+// Current memory usage (bytes)
+long memCurrent = FileUtil.getLongFromFile("/sys/fs/cgroup/memory.current");
+```
+
+On **cgroup v1** (older Docker / Kubernetes):
+
+```java
+// CPU quota (microseconds per period, -1 if unlimited) and period
+long cpuQuota = FileUtil.getLongFromFile("/sys/fs/cgroup/cpu/cpu.cfs_quota_us");
+long cpuPeriod = FileUtil.getLongFromFile("/sys/fs/cgroup/cpu/cpu.cfs_period_us");
+
+// Memory limit (bytes)
+long memLimit = FileUtil.getLongFromFile("/sys/fs/cgroup/memory/memory.limit_in_bytes");
+```
+
+## How do I get CPU usage?
+
+CPU usage is computed by comparing tick counters at two points in time. A single snapshot is meaningless on its own — you must poll at least twice and calculate the difference.
+
+**System-level CPU usage** uses `CentralProcessor.getSystemCpuLoadTicks()`, which returns 8 tick values (User, Nice, System, Idle, IOWait, IRQ, SoftIRQ, Steal). The ratio of active ticks to total ticks (active + idle) gives the CPU load:
+
+```java
+CentralProcessor cpu = new SystemInfo().getHardware().getProcessor();
+
+// First snapshot
+long[] prevTicks = cpu.getSystemCpuLoadTicks();
+Thread.sleep(1000);
+
+// Second snapshot — OSHI computes the delta internally
+double load = cpu.getSystemCpuLoadBetweenTicks(prevTicks);
+System.out.printf("CPU Load: %.1f%%%n", load * 100);
+
+// Save current ticks for the next interval
+prevTicks = cpu.getSystemCpuLoadTicks();
+```
+
+**Process-level CPU usage** uses `OSProcess.getProcessCpuLoadBetweenTicks(previousSnapshot)`. Unlike system ticks, processes have **no idle counter** — the calculation is (kernel + user time) / elapsed up time. This means a multi-threaded process on a 4-core system can report up to 400% CPU (matching `top` on Linux/Unix). On Windows, the Task Manager divides by logical processor count to cap at 100%; to match that display, divide OSHI's value by `getLogicalProcessorCount()`.
+
+```java
+SystemInfo si = new SystemInfo();
+OperatingSystem os = si.getOperatingSystem();
+int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
+
+// First snapshot: build a map of PID -> OSProcess
+Map<Integer, OSProcess> priorSnapshot = new HashMap<>();
+for (OSProcess p : os.getProcesses(null, null, 0)) {
+    priorSnapshot.put(p.getProcessID(), p);
+}
+Thread.sleep(2000);
+
+// Second snapshot: compute per-process CPU
+for (OSProcess p : os.getProcesses(null, null, 0)) {
+    double cpu = p.getProcessCpuLoadBetweenTicks(priorSnapshot.get(p.getProcessID()));
+    // Unix-style (can exceed 100%):
+    System.out.printf("PID %d: %.1f%% (Unix-style)%n", p.getProcessID(), cpu * 100);
+    // Windows Task Manager-style (capped per system):
+    System.out.printf("PID %d: %.1f%% (Windows-style)%n", p.getProcessID(), cpu * 100 / cpuCount);
+    priorSnapshot.put(p.getProcessID(), p);
+}
+```
+
+**Key differences between system and process CPU:**
+
+| | System CPU | Process CPU |
+|---|---|---|
+| Idle ticks | Yes (8 tick types including Idle) | No idle counter |
+| Calculation | active / (active + idle) | (kernel + user) / elapsed time |
+| Range | 0–100% (unless Windows Utility mode) | 0 – (100% × logical CPUs) |
+| Windows note | Set `OSHI_OS_WINDOWS_CPU_UTILITY` to match Task Manager | Divide by logical CPU count to match Task Manager |
+
+**Tips:**
+ - Poll at least every 1–2 seconds for meaningful results. The first call returns cumulative data, so discard it or use it as the baseline.
+ - For non-blocking periodic monitoring, store the previous ticks yourself (as shown above) rather than using the convenience `getSystemCpuLoad(delay)` method, which blocks the calling thread.
+ - See the [ProcessorPanel](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/gui/ProcessorPanel.java) and [ProcessPanel](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/gui/ProcessPanel.java) in the `oshi-demo` module for working GUI examples of both system and process CPU polling.
 
 ## Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?
 
