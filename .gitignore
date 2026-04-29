@@ -14,3 +14,4 @@ lib/
 release.properties
 *.releaseBackup
 bin/
+META-INF/
