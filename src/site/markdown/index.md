@@ -34,15 +34,14 @@ Documentation
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0)
-  * JPMS: [oshi-core-java11-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.12.0)
-  * FFM: [oshi-core-java25-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.12.0)
+  * JNA: [oshi-core-7.0.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.0.0)
+  * FFM: [oshi-core-ffm-7.0.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.0.0)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT)
-  * FFM: [oshi-core-ffm-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.0-SNAPSHOT/)
+  * JNA: [oshi-core-7.0.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.1-SNAPSHOT)
+  * FFM: [oshi-core-ffm-7.0.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.1-SNAPSHOT/)
 
-Legacy Version
+Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
@@ -68,6 +67,23 @@ The **`oshi-common`** module contains shared code used by both the JNA and FFM i
 - **No native dependencies** — does not require JNA, FFM, or `--enable-native-access`.
 - Suitable for restricted JVM environments or use cases where full native access is unnecessary, such as Linux CPU and memory monitoring via `/proc` and `/sys`.
 - Can be used standalone by extending the abstract base classes with your own platform-specific logic.
+
+Supported Features
+------------------
+* Computer System and firmware, baseboard
+* Operating System and Version/Build
+* Physical (core) and Logical (hyperthreaded) CPUs, processor groups, NUMA nodes
+* System and per-processor load, usage tick counters, interrupts, uptime
+* Process uptime, CPU, memory usage, user/group, command line args, thread details
+* Physical and virtual memory used/available
+* Mounted filesystems (type, usable and total space, options, reads and writes)
+* Disk drives (model, serial, size, reads and writes) and partitions
+* Network interfaces (IPs, bandwidth in/out), network parameters, TCP/UDP statistics
+* Battery state (% capacity, time remaining, power usage stats)
+* USB Devices
+* Connected displays (with EDID info), graphics and audio cards
+* Sensors (temperature, fan speeds, voltage) on some hardware
+* Printers (name, status, driver)
 
 Usage
 -----
@@ -119,23 +135,6 @@ The `oshi-benchmark` artifact (requires JDK 25+) provides [JMH benchmarks](https
 ```sh
 ./oshi-benchmark/scripts/run-benchmarks.sh
 ```
-
-Supported Features
-------------------
-* Computer System and firmware, baseboard
-* Operating System and Version/Build
-* Physical (core) and Logical (hyperthreaded) CPUs, processor groups, NUMA nodes
-* System and per-processor load, usage tick counters, interrupts, uptime
-* Process uptime, CPU, memory usage, user/group, command line args, thread details
-* Physical and virtual memory used/available
-* Mounted filesystems (type, usable and total space, options, reads and writes)
-* Disk drives (model, serial, size, reads and writes) and partitions
-* Network interfaces (IPs, bandwidth in/out), network parameters, TCP/UDP statistics
-* Battery state (% capacity, time remaining, power usage stats)
-* USB Devices
-* Connected displays (with EDID info), graphics and audio cards
-* Sensors (temperature, fan speeds, voltage) on some hardware
-* Printers (name, status, driver)
 
 Support
 -------

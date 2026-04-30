@@ -54,7 +54,7 @@ import oshi.util.PlatformEnum;
  * <p>
  * This implementation uses <a href="https://github.com/java-native-access/jna">JNA</a> for native access and supports
  * all OSHI platforms (Windows, macOS, Linux, Android, FreeBSD, OpenBSD, Solaris, AIX). Android is routed through the
- * Linux implementations. For JDK 25+, the {@code oshi-core-java25} module provides an alternative entry point
+ * Linux implementations. For JDK 25+, the {@code oshi-core-ffm} module provides an alternative entry point
  * ({@code oshi.ffm.SystemInfo}) that uses the Foreign Function and Memory (FFM) API for potentially better performance
  * on supported platforms (currently Windows, macOS, and Linux).
  * <p>

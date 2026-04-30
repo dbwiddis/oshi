@@ -33,13 +33,13 @@
  * <li><b>{@code oshi-core}</b> (this module) - Full OSHI implementation using
  * <a href="https://github.com/java-native-access/jna">JNA</a> for native access. Supports all platforms (Windows,
  * macOS, Linux, FreeBSD, OpenBSD, Solaris, AIX). Entry point: {@link oshi.SystemInfo}.</li>
- * <li><b>{@code oshi-core-java25}</b> - Alternative implementation using the Foreign Function and Memory (FFM) API (JDK
+ * <li><b>{@code oshi-core-ffm}</b> - Alternative implementation using the Foreign Function and Memory (FFM) API (JDK
  * 25+). Currently supports Windows, macOS, and Linux. Entry point: {@code oshi.ffm.SystemInfo}.</li>
  * </ul>
  *
  * <h2>Native Access and JEP 472</h2>
  *
- * Both {@code oshi-core} and {@code oshi-core-java25} use native access to retrieve most system information.
+ * Both {@code oshi-core} and {@code oshi-core-ffm} use native access to retrieve most system information.
  * <a href="https://openjdk.org/jeps/472">JEP 472</a> (JDK 24) causes the JVM to issue warnings when native code is
  * loaded, and a future JDK release will require the {@code --enable-native-access} flag to permit it.
  * <p>
