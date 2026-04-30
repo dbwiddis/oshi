@@ -5,6 +5,7 @@ Releasing OSHI
 
 * Put your [repository credentials in your Maven settings.xml file](https://central.sonatype.org/pages/apache-maven.html#distribution-management-and-authentication) for both snapshot and staging repositories in [pom.xml](pom.xml).
 * Put your [gpg certificate credentials in the settings.xml file](https://central.sonatype.org/pages/apache-maven.html#gpg-signed-components)
+* The `central` server in `settings.xml` is also used by the upload script (see below).
 
 ### Snapshots
 
@@ -28,7 +29,7 @@ manually deployed using `mvn clean deploy`
 
 ### Release
 
-* To perform a full release including the modular artifact you must have `JAVA_HOME` pointing to JDK 11 or higher.
+* To perform a full release including the FFM artifact you must have `JAVA_HOME` pointing to JDK 25 or higher.
 
 See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-a-release-deployment-with-the-maven-release-plugin) for a summary of the below steps
 * `mvn clean deploy`
@@ -41,10 +42,15 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
     * This will ask for the version being released, removing -SNAPSHOT
     * This will suggest the next version, increment appropriately
 * `mvn release:perform`
-    * Takes a few minutes.
-    * This pushes the release to the [OSSRH](https://oss.sonatype.org/) staging repository
+    * Takes a few minutes
+    * This builds the release from the tag in `target/checkout`, creates `central-bundle.zip`, and uploads it to the Central Portal
     * This also pushes to [gh_pages](https://oshi.github.io/oshi)
-* Log on to [Nexus](https://oss.sonatype.org/) and [release the deployment from OSSRH to the Central Repository](https://central.sonatype.org/pages/releasing-the-deployment.html).
+    * **If the upload fails** (e.g. broken pipe), the bundle is preserved at `target/checkout/target/central-publishing/central-bundle.zip`. Upload it manually:
+      ```sh
+      ./scripts/upload-to-central.sh
+      ```
+      This reads credentials from `settings.xml` and uploads with retry/timeout handling. The deployment is created as `USER_MANAGED` for review before publishing.
+* Log on to [Central Portal](https://central.sonatype.com/publishing) and publish the validated deployment (if the automatic publish did not succeed).
 
 * Release the site; this can be done anytime after `release:prepare`:
     * Create/reset/rebase your local `site` branch to the just-released tag
