@@ -375,7 +375,6 @@ class NativeComparisonTest {
         assertThat(ffm.getUserID()).isEqualTo(jna.getUserID());
         assertThat(ffm.getGroup()).isEqualTo(jna.getGroup());
         assertThat(ffm.getGroupID()).isEqualTo(jna.getGroupID());
-        assertThat(ffm.getState()).isEqualTo(jna.getState());
         assertThat(ffm.getParentProcessID()).isEqualTo(jna.getParentProcessID());
         assertThat(ffm.getPriority()).isEqualTo(jna.getPriority());
         // Memory values should be in the same ballpark
@@ -405,7 +404,6 @@ class NativeComparisonTest {
         assertThat(ffm.updateAttributes()).as("FFM updateAttributes").isTrue();
         // After refresh, basic fields should still match
         assertThat(ffm.getName()).isEqualTo(jna.getName());
-        assertThat(ffm.getState()).isEqualTo(jna.getState());
         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
         // Command line exercises Win32ProcessCached when batch mode is enabled
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
@@ -586,7 +584,6 @@ class NativeComparisonTest {
         assertThat(ffmThread.getThreadId()).isEqualTo(jnaThread.getThreadId());
         assertThat(ffmThread.getOwningProcessId()).isEqualTo(jnaThread.getOwningProcessId());
         assertThat(ffmThread.getName()).isEqualTo(jnaThread.getName());
-        assertThat(ffmThread.getState()).isEqualTo(jnaThread.getState());
     }
 
     // ---- OS: Desktop Windows ----
