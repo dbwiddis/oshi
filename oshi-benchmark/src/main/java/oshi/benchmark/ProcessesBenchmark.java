@@ -52,22 +52,45 @@ public class ProcessesBenchmark {
     private OperatingSystem jnaOs;
     private OperatingSystem ffmOs;
 
+    /** Creates a new benchmark instance. Required by JMH for {@code @State} classes. */
+    public ProcessesBenchmark() {
+    }
+
+    /**
+     * Initializes JNA and FFM {@link OperatingSystem} instances.
+     */
     @Setup
     public void setup() {
         jnaOs = new oshi.SystemInfo().getOperatingSystem();
         ffmOs = new oshi.ffm.SystemInfo().getOperatingSystem();
     }
 
+    /**
+     * Benchmarks the JNA implementation of {@link OperatingSystem#getProcesses()}.
+     *
+     * @return the list of OS processes
+     */
     @Benchmark
     public List<OSProcess> jna() {
         return jnaOs.getProcesses();
     }
 
+    /**
+     * Benchmarks the FFM implementation of {@link OperatingSystem#getProcesses()}.
+     *
+     * @return the list of OS processes
+     */
     @Benchmark
     public List<OSProcess> ffm() {
         return ffmOs.getProcesses();
     }
 
+    /**
+     * Standalone entry point for running this benchmark outside the fat jar.
+     *
+     * @param args command-line arguments (unused)
+     * @throws RunnerException if the benchmark fails
+     */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(ProcessesBenchmark.class.getSimpleName()).build();
         new Runner(opt).run();

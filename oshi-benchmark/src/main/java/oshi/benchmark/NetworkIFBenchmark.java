@@ -41,6 +41,13 @@ public class NetworkIFBenchmark {
     private List<NetworkIF> jnaIfs;
     private List<NetworkIF> ffmIfs;
 
+    /** Creates a new benchmark instance. Required by JMH for {@code @State} classes. */
+    public NetworkIFBenchmark() {
+    }
+
+    /**
+     * Initializes JNA and FFM {@link NetworkIF} lists with memoization disabled.
+     */
     @Setup
     public void setup() {
         GlobalConfig.set(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 0);
@@ -50,6 +57,11 @@ public class NetworkIFBenchmark {
         ffmIfs = ffmHal.getNetworkIFs();
     }
 
+    /**
+     * Benchmarks the JNA implementation of {@link NetworkIF#updateAttributes()}.
+     *
+     * @param bh JMH black hole to prevent dead-code elimination
+     */
     @Benchmark
     public void jna(Blackhole bh) {
         for (NetworkIF nif : jnaIfs) {
@@ -57,6 +69,11 @@ public class NetworkIFBenchmark {
         }
     }
 
+    /**
+     * Benchmarks the FFM implementation of {@link NetworkIF#updateAttributes()}.
+     *
+     * @param bh JMH black hole to prevent dead-code elimination
+     */
     @Benchmark
     public void ffm(Blackhole bh) {
         for (NetworkIF nif : ffmIfs) {
@@ -64,6 +81,12 @@ public class NetworkIFBenchmark {
         }
     }
 
+    /**
+     * Standalone entry point for running this benchmark outside the fat jar.
+     *
+     * @param args command-line arguments (unused)
+     * @throws RunnerException if the benchmark fails
+     */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(NetworkIFBenchmark.class.getSimpleName()).build();
         new Runner(opt).run();

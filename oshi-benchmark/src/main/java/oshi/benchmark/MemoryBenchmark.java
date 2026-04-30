@@ -46,6 +46,13 @@ public class MemoryBenchmark {
     private VirtualMemory jnaVm;
     private VirtualMemory ffmVm;
 
+    /** Creates a new benchmark instance. Required by JMH for {@code @State} classes. */
+    public MemoryBenchmark() {
+    }
+
+    /**
+     * Initializes JNA and FFM {@link GlobalMemory} and {@link VirtualMemory} instances with memoization disabled.
+     */
     @Setup
     public void setup() {
         GlobalConfig.set(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 0);
@@ -55,6 +62,11 @@ public class MemoryBenchmark {
         ffmVm = ffmMem.getVirtualMemory();
     }
 
+    /**
+     * Benchmarks the JNA implementation of memory and virtual-memory queries.
+     *
+     * @param bh JMH black hole to prevent dead-code elimination
+     */
     @Benchmark
     public void jna(Blackhole bh) {
         bh.consume(jnaMem.getAvailable());
@@ -62,6 +74,11 @@ public class MemoryBenchmark {
         bh.consume(jnaVm.getSwapUsed());
     }
 
+    /**
+     * Benchmarks the FFM implementation of memory and virtual-memory queries.
+     *
+     * @param bh JMH black hole to prevent dead-code elimination
+     */
     @Benchmark
     public void ffm(Blackhole bh) {
         bh.consume(ffmMem.getAvailable());
@@ -69,6 +86,12 @@ public class MemoryBenchmark {
         bh.consume(ffmVm.getSwapUsed());
     }
 
+    /**
+     * Standalone entry point for running this benchmark outside the fat jar.
+     *
+     * @param args command-line arguments (unused)
+     * @throws RunnerException if the benchmark fails
+     */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(MemoryBenchmark.class.getSimpleName()).build();
         new Runner(opt).run();

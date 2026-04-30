@@ -38,6 +38,13 @@ public class CpuTicksBenchmark {
     private CentralProcessor jnaCpu;
     private CentralProcessor ffmCpu;
 
+    /** Creates a new benchmark instance. Required by JMH for {@code @State} classes. */
+    public CpuTicksBenchmark() {
+    }
+
+    /**
+     * Initializes JNA and FFM {@link CentralProcessor} instances with memoization disabled.
+     */
     @Setup
     public void setup() {
         GlobalConfig.set(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 0);
@@ -45,16 +52,32 @@ public class CpuTicksBenchmark {
         ffmCpu = new oshi.ffm.SystemInfo().getHardware().getProcessor();
     }
 
+    /**
+     * Benchmarks the JNA implementation of {@link CentralProcessor#getProcessorCpuLoadTicks()}.
+     *
+     * @return per-processor tick counts
+     */
     @Benchmark
     public long[][] jna() {
         return jnaCpu.getProcessorCpuLoadTicks();
     }
 
+    /**
+     * Benchmarks the FFM implementation of {@link CentralProcessor#getProcessorCpuLoadTicks()}.
+     *
+     * @return per-processor tick counts
+     */
     @Benchmark
     public long[][] ffm() {
         return ffmCpu.getProcessorCpuLoadTicks();
     }
 
+    /**
+     * Standalone entry point for running this benchmark outside the fat jar.
+     *
+     * @param args command-line arguments (unused)
+     * @throws RunnerException if the benchmark fails
+     */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(CpuTicksBenchmark.class.getSimpleName()).build();
         new Runner(opt).run();

@@ -20,7 +20,6 @@
         <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.testSource>25</maven.compiler.testSource>
         <maven.compiler.testTarget>25</maven.compiler.testTarget>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.test.skip>true</maven.test.skip>
         <native.access.modules>ALL-UNNAMED</native.access.modules>
         <shade.phase>none</shade.phase>
@@ -147,6 +146,22 @@
                         <manifestFile combine.self="override" />
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <!-- Exclude JMH-generated sources from javadoc -->
+                    <excludePackageNames>*.jmh_generated</excludePackageNames>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- Override release profile: all test classes are
+                             package-private so test-jar finds nothing to document. -->
+                        <id>attach-test-javadocs</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

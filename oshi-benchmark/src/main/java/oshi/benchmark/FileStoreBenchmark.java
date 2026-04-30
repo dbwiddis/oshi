@@ -41,6 +41,13 @@ public class FileStoreBenchmark {
     private List<OSFileStore> jnaStores;
     private List<OSFileStore> ffmStores;
 
+    /** Creates a new benchmark instance. Required by JMH for {@code @State} classes. */
+    public FileStoreBenchmark() {
+    }
+
+    /**
+     * Initializes JNA and FFM {@link OSFileStore} lists with memoization disabled.
+     */
     @Setup
     public void setup() {
         GlobalConfig.set(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 0);
@@ -50,6 +57,11 @@ public class FileStoreBenchmark {
         ffmStores = ffmOs.getFileSystem().getFileStores();
     }
 
+    /**
+     * Benchmarks the JNA implementation of {@link OSFileStore#updateAttributes()}.
+     *
+     * @param bh JMH black hole to prevent dead-code elimination
+     */
     @Benchmark
     public void jna(Blackhole bh) {
         for (OSFileStore store : jnaStores) {
@@ -57,6 +69,11 @@ public class FileStoreBenchmark {
         }
     }
 
+    /**
+     * Benchmarks the FFM implementation of {@link OSFileStore#updateAttributes()}.
+     *
+     * @param bh JMH black hole to prevent dead-code elimination
+     */
     @Benchmark
     public void ffm(Blackhole bh) {
         for (OSFileStore store : ffmStores) {
@@ -64,6 +81,12 @@ public class FileStoreBenchmark {
         }
     }
 
+    /**
+     * Standalone entry point for running this benchmark outside the fat jar.
+     *
+     * @param args command-line arguments (unused)
+     * @throws RunnerException if the benchmark fails
+     */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(FileStoreBenchmark.class.getSimpleName()).build();
         new Runner(opt).run();
