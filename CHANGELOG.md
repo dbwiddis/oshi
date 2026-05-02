@@ -1,9 +1,8 @@
-# 7.0.1 (in progress)
+# 7.0.2 (in progress)
 
-* [#3220](https://github.com/oshi/oshi/pull/3220): Move `oshi-core-ffm` utility classes from `oshi.util.gpu`, `oshi.util.platform.mac`, and `oshi.util.platform.windows` packages to `oshi.ffm.util.gpu`, `oshi.ffm.util.platform.mac`, and `oshi.ffm.util.platform.windows`. This eliminates split-package conflicts so `oshi-core` and `oshi-core-ffm` can coexist on the module path - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
-# 7.0.0 (2026-04-30)
+# 7.0.0 (2026-04-30), 7.0.1 (2026-05-02)
 
 See [Upgrading](src/site/markdown/Upgrading.md) for breaking changes and migration guide.
 
@@ -16,6 +15,10 @@ See [Upgrading](src/site/markdown/Upgrading.md) for breaking changes and migrati
 ##### New Features
 
 * [#3183](https://github.com/oshi/oshi/pull/3183): Add `@PublicApi` annotation to all SemVer-guaranteed API types in `oshi.hardware`, `oshi.software.os`, both `SystemInfo` entry points, and `PlatformEnum` - [@dbwiddis](https://github.com/dbwiddis).
+
+##### JPMS Package Moves
+
+* [#3220](https://github.com/oshi/oshi/pull/3220): Move `oshi-core-ffm` utility classes from `oshi.util.gpu`, `oshi.util.platform.mac`, and `oshi.util.platform.windows` packages to `oshi.ffm.util.gpu`, `oshi.ffm.util.platform.mac`, and `oshi.ffm.util.platform.windows`. This eliminates split-package conflicts so `oshi-core` and `oshi-core-ffm` can coexist on the module path - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.12.0 (2026-04-20)
 
