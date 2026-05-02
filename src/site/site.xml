@@ -17,9 +17,6 @@
             <item href="index.html" name="Overview" />
             <item href="oshi-core/apidocs/" name="Javadocs (JNA)" />
             <item href="oshi-core-ffm/apidocs/" name="Javadocs (FFM)" />
-            <item href="FAQ.html" name="Frequently Asked Questions" />
-            <item href="Performance.html" name="Performance Considerations" />
-            <item href="Upgrading.html" name="Major Version Breaking Changes" />
             <item href="SampleOutput.html" name="Sample Output" />
         </menu>
         <menu name="GitHub">

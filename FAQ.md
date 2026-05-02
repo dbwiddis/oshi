@@ -33,7 +33,7 @@ CPU usage calculation precision depends on the relation of the polling interval 
 
 ## Is the API backwards compatible between versions?
 
-OSHI follows [Semantic Versioning](https://semver.org/). The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible within the same major version. Classes and interfaces annotated with `@PublicApi` are part of this contract. Differences between major versions can be found in the [Upgrading.md](Upgrading.md) document.
+OSHI follows [Semantic Versioning](https://semver.org/). The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible within the same major version. Classes and interfaces annotated with `@PublicApi` are part of this contract. Differences between major versions can be found in the [Upgrading.md](UPGRADING.md) document.
 
 Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.driver` and `oshi.util` packages may, rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
 

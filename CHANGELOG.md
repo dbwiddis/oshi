@@ -4,7 +4,7 @@
 
 # 7.0.0 (2026-04-30), 7.0.1 (2026-05-02)
 
-See [Upgrading](src/site/markdown/Upgrading.md) for breaking changes and migration guide.
+See [Upgrading](UPGRADING.md) for breaking changes and migration guide.
 
 ##### Breaking Changes
 
