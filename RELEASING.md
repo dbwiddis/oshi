@@ -22,7 +22,7 @@ manually deployed using `mvn clean deploy`
     * Proactively change version numbers in the download links on [README.md](README.md).
     * Copy `README.md` to `src/site/markdown/index.md`
         * HTML-escape `&`, `<`, and `>` in any links in the site version
-        * Edit markdown URLS from `src/site/markdown/` to same-directory links
+        * Edit markdown URLs to use full GitHub links for root docs and relative links for site docs
     * Change release dates and in-progress versions in `CHANGELOG.md`
     * Move "Your contribution here" to a new empty "In Progress" section
     * Commit changes as a "x.x release" (no need to push upstream yet)

@@ -41,10 +41,10 @@ Supported Features
 Documentation
 -------------
 * Javadocs — [JNA](https://oshi.github.io/oshi/oshi-core/apidocs/) \| [FFM](https://oshi.github.io/oshi/oshi-core-ffm/apidocs/)
-* [FAQ](src/site/markdown/FAQ.md)
+* [FAQ](FAQ.md)
 * [Change Log](https://github.com/oshi/oshi/blob/master/CHANGELOG.md)
-* [Performance Considerations](src/site/markdown/Performance.md)
-* [Major Version Breaking Changes](src/site/markdown/Upgrading.md)
+* [Performance Considerations](PERFORMANCE.md)
+* [Major Version Breaking Changes](UPGRADING.md)
 * [Sample Output](src/site/markdown/SampleOutput.md)
 * [Applications and Projects using OSHI](src/site/resources/Projects.md)
 
@@ -91,7 +91,7 @@ Usage
    - We strongly recommend you add `oshi-core` as a dependency to your project dependency manager such as Maven or Gradle.
    - For Windows, consider the optional `jLibreHardwareMonitor` dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.
    - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
-   - See the [FAQ](https://github.com/oshi/oshi/blob/master/src/site/markdown/FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
+   - See the [FAQ](FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
 2. Create a new instance of `SystemInfo`
 3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
 
@@ -188,8 +188,8 @@ but we would love for *you* to help by:
 
 Contributing to OSHI
 --------------------
-* [How to Contribute](src/site/markdown/Contributing.md)
-* [How to Release](src/site/markdown/Releasing.md)
+* [How to Contribute](CONTRIBUTING.md)
+* [How to Release](RELEASING.md)
 
 Acknowledgments
 ---------------
