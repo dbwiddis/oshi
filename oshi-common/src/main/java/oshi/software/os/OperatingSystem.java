@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.common.NoOpCgroupInfo;
 import oshi.software.os.OSProcess.State;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -387,6 +388,18 @@ public interface OperatingSystem {
      */
     default List<ApplicationInfo> getInstalledApplications() {
         return Collections.emptyList();
+    }
+
+    /**
+     * Retrieves cgroup information for the current process.
+     * <p>
+     * On Linux, this returns detailed cgroup resource limits and usage metrics. On non-Linux platforms, this returns a
+     * no-op instance where {@link CgroupInfo#isContainerized()} returns {@code false}.
+     *
+     * @return A {@link CgroupInfo} object representing cgroup information.
+     */
+    default CgroupInfo getCgroupInfo() {
+        return NoOpCgroupInfo.INSTANCE;
     }
 
     /**

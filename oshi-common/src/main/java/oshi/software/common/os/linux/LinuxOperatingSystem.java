@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.ApplicationInfo;
+import oshi.software.os.CgroupInfo;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
@@ -60,6 +61,8 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(LinuxInstalledApps::queryInstalledApps, installedAppsExpiration());
+
+    private final Supplier<CgroupInfo> cgroupInfoSupplier = Memoizer.memoize(LinuxCgroupInfo::new);
 
     /**
      * OS Name for manufacturer
@@ -221,6 +224,11 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<ApplicationInfo> getInstalledApplications() {
         return installedAppsSupplier.get();
+    }
+
+    @Override
+    public CgroupInfo getCgroupInfo() {
+        return cgroupInfoSupplier.get();
     }
 
     private static Triplet<String, String, String> queryFamilyVersionCodenameFromReleaseFiles() {
