@@ -18,8 +18,8 @@ import oshi.util.linux.SysPath;
 /**
  * Linux implementation of {@link CgroupInfo} supporting both cgroup v2 and v1.
  * <p>
- * This implementation detects the cgroup version and reads resource limits and usage from the appropriate
- * cgroup filesystem paths. Limit values are memoized while usage values are read fresh on each call.
+ * This implementation detects the cgroup version and reads resource limits and usage from the appropriate cgroup
+ * filesystem paths. Limit values are memoized while usage values are read fresh on each call.
  */
 @ThreadSafe
 public class LinuxCgroupInfo implements CgroupInfo {

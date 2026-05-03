@@ -10,8 +10,8 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * Represents cgroup (control group) information for containerized environments.
  * <p>
- * This interface provides access to resource limits and usage metrics for processes running in cgroups,
- * supporting both cgroup v1 and v2.
+ * This interface provides access to resource limits and usage metrics for processes running in cgroups, supporting both
+ * cgroup v1 and v2.
  * <p>
  * Sentinel values are used to indicate special conditions:
  * <ul>
