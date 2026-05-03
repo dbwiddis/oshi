@@ -4,6 +4,7 @@
  */
 package oshi.software.common.os.linux;
 
+import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -20,11 +21,17 @@ import oshi.util.linux.SysPath;
  * <p>
  * This implementation detects the cgroup version and reads resource limits and usage from the appropriate cgroup
  * filesystem paths. Limit values are memoized while usage values are read fresh on each call.
+ * <p>
+ * Container detection ({@link #isContainerized()}) checks for known container markers such as {@code /.dockerenv}, and
+ * cgroup paths containing {@code /docker/}, {@code /kubepods/}, {@code /lxc/}, etc.
  */
 @ThreadSafe
 public class LinuxCgroupInfo implements CgroupInfo {
 
-    private static final long MICROSECONDS_PER_NANOSECOND = 1000L;
+    private static final long NANOSECONDS_PER_MICROSECOND = 1000L;
+
+    private static final String[] CONTAINER_MARKERS = { "/docker/", "/kubepods/", "/lxc/", "/containerd/", "/crio-",
+            "/buildkit/" };
 
     private final Supplier<Integer> versionSupplier = Memoizer.memoize(this::detectVersion);
     private final Supplier<String> cgroupPathSupplier = Memoizer.memoize(this::parseCgroupPath);
@@ -41,7 +48,29 @@ public class LinuxCgroupInfo implements CgroupInfo {
 
     @Override
     public boolean isContainerized() {
-        return getVersion() > 0;
+        // Check for known container indicator files
+        if (new File("/.dockerenv").exists()) {
+            return true;
+        }
+        // Check cgroup path for container-specific markers
+        String cgroupPath = cgroupPathSupplier.get();
+        if (!cgroupPath.isEmpty()) {
+            for (String marker : CONTAINER_MARKERS) {
+                if (cgroupPath.contains(marker)) {
+                    return true;
+                }
+            }
+        }
+        // Also check v1 cgroup entries for container markers
+        List<String> selfCgroup = FileUtil.readFile(ProcPath.SELF_CGROUP);
+        for (String line : selfCgroup) {
+            for (String marker : CONTAINER_MARKERS) {
+                if (line.contains(marker)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -127,11 +156,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         }
 
         // Multiple entries indicate v1 or hybrid mode, fall back to v1
-        if (!selfCgroup.isEmpty()) {
-            return 1;
-        }
-
-        return 0;
+        return 1;
     }
 
     private String parseCgroupPath() {
@@ -245,17 +270,13 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readCpuUsageV2() {
-        String cpuStat = FileUtil.getStringFromFile(getV2CgroupBase() + "cpu.stat");
-        if (cpuStat.isEmpty()) {
-            // Try reading the full file
-            List<String> lines = FileUtil.readFile(getV2CgroupBase() + "cpu.stat");
-            for (String line : lines) {
-                if (line.startsWith("usage_usec")) {
-                    String[] parts = line.split("\\s+");
-                    if (parts.length >= 2) {
-                        long usec = ParseUtil.parseLongOrDefault(parts[1], 0L);
-                        return usec * MICROSECONDS_PER_NANOSECOND;
-                    }
+        List<String> lines = FileUtil.readFile(getV2CgroupBase() + "cpu.stat");
+        for (String line : lines) {
+            if (line.startsWith("usage_usec")) {
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 2) {
+                    long usec = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                    return usec * NANOSECONDS_PER_MICROSECOND;
                 }
             }
         }

@@ -34,9 +34,9 @@ public final class NoOpCgroupInfo implements CgroupInfo {
     public static final NoOpCgroupInfo INSTANCE = new NoOpCgroupInfo();
 
     /**
-     * Constructs a new NoOpCgroupInfo instance.
+     * Private constructor to enforce singleton pattern.
      */
-    NoOpCgroupInfo() {
+    private NoOpCgroupInfo() {
     }
 
     @Override

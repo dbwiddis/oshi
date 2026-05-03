@@ -15,7 +15,8 @@ import oshi.annotation.concurrent.ThreadSafe;
  * <p>
  * Sentinel values are used to indicate special conditions:
  * <ul>
- * <li>{@code -1} for unlimited quota, period, or PIDs</li>
+ * <li>{@code -1} for unlimited quota or PIDs</li>
+ * <li>{@code 100000L} for CPU period when not set (standard default)</li>
  * <li>{@code Long.MAX_VALUE} for unlimited memory</li>
  * <li>{@code 0} for version when not in a cgroup</li>
  * <li>{@code -1.0d} for unlimited effective CPUs</li>
@@ -49,7 +50,7 @@ public interface CgroupInfo {
     /**
      * Returns the CPU period for the cgroup in microseconds.
      *
-     * @return the CPU period in microseconds, or {@code -1} if unlimited (typically {@code 100000} as default)
+     * @return the CPU period in microseconds, or {@code 100000L} as the standard default when not explicitly set
      */
     long getCpuPeriod();
 
