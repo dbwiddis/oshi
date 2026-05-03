@@ -11,6 +11,7 @@
   * [How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?](#how-do-i-resolve-pdh-call-failed-with-error-code-0xc0000bb8-issues)
   * [How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?](#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues)
   * [Does OSHI work in containers (Docker, Kubernetes)?](#does-oshi-work-in-containers-docker-kubernetes)
+  * [How does OSHI support the Principle of Least Privilege?](#how-does-oshi-support-the-principle-of-least-privilege)
   * [How do I get CPU usage?](#how-do-i-get-cpu-usage)
   * [Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-system-and-processor-cpu-usage-differ-from-the-windows-task-manager)
   * [Why does OSHI's Process CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-process-cpu-usage-differ-from-the-windows-task-manager)
@@ -174,6 +175,62 @@ long cpuPeriod = FileUtil.getLongFromFile("/sys/fs/cgroup/cpu/cpu.cfs_period_us"
 // Memory limit (bytes)
 long memLimit = FileUtil.getLongFromFile("/sys/fs/cgroup/memory/memory.limit_in_bytes");
 ```
+
+## How does OSHI support the Principle of Least Privilege?
+
+OSHI is designed to work without elevated permissions. The vast majority of system information — CPU, memory, disks, network, processes, and more — is available to any unprivileged user on all supported platforms. You should **not** need to run your application as root or Administrator just to use OSHI.
+
+However, some specific features require elevated permissions to access. Rather than running your entire application with elevated privileges (which violates the [Principle of Least Privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) and introduces unnecessary risk), OSHI provides mechanisms to grant fine-grained access to only the specific resources that need it.
+
+### What requires elevated permissions?
+
+**Linux:**
+- Hardware details via `dmidecode` (serial numbers, BIOS info, physical memory details)
+- Some `/proc/<pid>` files (e.g., `/proc/<pid>/io` for per-process I/O stats)
+- Logical volume group information via `pvs`/`lvs`
+
+**Windows:**
+- Process command lines and environment variables for processes owned by other users (requires `SeDebugPrivilege` or Administrator)
+- Sensor data (temperature, fan speeds) via [jLibreHardwareMonitor](https://github.com/oshi/jLibreHardwareMonitor)
+
+**macOS:**
+- TCP/UDP connection details (without elevation, connection data is limited)
+
+### Linux: Configurable privilege escalation via sudo
+
+On Linux, OSHI supports configurable privilege escalation using three properties in [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-common/src/main/resources/oshi.properties) (or via [`GlobalConfig`](https://www.oshi.ooo/oshi-core/apidocs/com.github.oshi.common/oshi/util/GlobalConfig.html)):
+
+| Property | Description |
+|---|---|
+| `oshi.os.linux.privileged.prefix` | Command prefix, e.g., `sudo -n` |
+| `oshi.os.linux.privileged.allowlist` | Comma-separated commands eligible for the prefix, e.g., `dmidecode,lshw` |
+| `oshi.os.linux.privileged.file.allowlist` | Comma-separated file paths or glob patterns eligible for privileged read via the prefix + `cat`, e.g., `/proc/*/io` |
+
+**Example setup:**
+
+1. Configure passwordless sudo for only the specific commands your application needs (`sudo visudo`):
+   ```
+   oshiuser ALL=(ALL) NOPASSWD: /usr/sbin/dmidecode, /usr/bin/lshw, /usr/bin/cat
+   ```
+
+2. Set the OSHI configuration at startup:
+   ```java
+   GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, "sudo -n");
+   GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, "dmidecode,lshw");
+   GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, "/proc/*/io");
+   ```
+   Or set equivalent values in `oshi.properties` or as Java system properties.
+
+**How it works:**
+- The prefix is **not** applied when already running as root (uid=0).
+- Only commands and files explicitly listed in the allowlists will use privilege escalation.
+- For file reads, OSHI first attempts a normal read; only if the file exists but is not readable does it fall back to the privileged `cat` command.
+- The prefix is flexible — it works with `sudo`, `doas`, or a custom wrapper script for stricter environments.
+
+**Security notes:**
+- Restrict your `sudoers` entries to the minimum set of commands required.
+- Take care with the file allowlist — avoid paths like `/proc/*/environ` which could expose credentials.
+- For higher-security environments, consider a wrapper script that validates arguments before executing the privileged command. See [#3100](https://github.com/oshi/oshi/issues/3100) for examples.
 
 ## How do I get CPU usage?
 
