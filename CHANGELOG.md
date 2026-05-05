@@ -1,5 +1,6 @@
-# 7.0.2 (in progress)
+# 7.1.0 (in progress)
 
+* [#3225](https://github.com/oshi/oshi/pull/3225): Add CgroupInfo API with Linux cgroup v1/v2 support - [@rohan-coder02](https://github.com/rohan-coder02).
 * Your contribution here!
 
 # 7.0.0 (2026-04-30), 7.0.1 (2026-05-02)
