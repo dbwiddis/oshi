@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.NoOpCgroupInfo;
 import oshi.software.os.OSProcess.State;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -399,7 +398,8 @@ public interface OperatingSystem {
      * @return A {@link CgroupInfo} object representing cgroup information.
      */
     default CgroupInfo getCgroupInfo() {
-        return NoOpCgroupInfo.INSTANCE;
+        return new CgroupInfo() {
+        };
     }
 
     /**

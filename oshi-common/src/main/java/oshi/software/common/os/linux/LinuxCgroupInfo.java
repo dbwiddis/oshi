@@ -102,16 +102,6 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     @Override
-    public double getEffectiveCpus() {
-        long quota = getCpuQuota();
-        long period = getCpuPeriod();
-        if (quota <= 0 || period <= 0) {
-            return -1.0d;
-        }
-        return (double) quota / period;
-    }
-
-    @Override
     public long getMemoryLimit() {
         return memoryLimitSupplier.get();
     }
@@ -219,28 +209,28 @@ public class LinuxCgroupInfo implements CgroupInfo {
         } else if (version == 1) {
             return readCpuQuotaV1();
         }
-        return -1L;
+        return UNLIMITED;
     }
 
     private long readCpuQuotaV2() {
         String cpuMax = FileUtil.getStringFromFile(getV2CgroupBase() + "cpu.max");
         if (cpuMax.isEmpty()) {
-            return -1L;
+            return UNLIMITED;
         }
         String[] parts = cpuMax.split("\\s+");
         if (parts.length >= 1) {
             if ("max".equalsIgnoreCase(parts[0])) {
-                return -1L;
+                return UNLIMITED;
             }
-            return ParseUtil.parseLongOrDefault(parts[0], -1L);
+            return ParseUtil.parseLongOrDefault(parts[0], UNLIMITED);
         }
-        return -1L;
+        return UNLIMITED;
     }
 
     private long readCpuQuotaV1() {
         String quotaPath = getV1ControllerPath("cpu") + "cpu.cfs_quota_us";
         long quota = FileUtil.getLongFromFile(quotaPath);
-        return quota == 0 ? -1L : quota;
+        return quota == 0 ? UNLIMITED : quota;
     }
 
     private long readCpuPeriod() {
@@ -250,25 +240,25 @@ public class LinuxCgroupInfo implements CgroupInfo {
         } else if (version == 1) {
             return readCpuPeriodV1();
         }
-        return 100000L;
+        return DEFAULT_CPU_PERIOD;
     }
 
     private long readCpuPeriodV2() {
         String cpuMax = FileUtil.getStringFromFile(getV2CgroupBase() + "cpu.max");
         if (cpuMax.isEmpty()) {
-            return 100000L;
+            return DEFAULT_CPU_PERIOD;
         }
         String[] parts = cpuMax.split("\\s+");
         if (parts.length >= 2) {
-            return ParseUtil.parseLongOrDefault(parts[1], 100000L);
+            return ParseUtil.parseLongOrDefault(parts[1], DEFAULT_CPU_PERIOD);
         }
-        return 100000L;
+        return DEFAULT_CPU_PERIOD;
     }
 
     private long readCpuPeriodV1() {
         String periodPath = getV1ControllerPath("cpu") + "cpu.cfs_period_us";
         long period = FileUtil.getLongFromFile(periodPath);
-        return period == 0 ? 100000L : period;
+        return period == 0 ? DEFAULT_CPU_PERIOD : period;
     }
 
     private long readCpuUsageV2() {
@@ -297,23 +287,22 @@ public class LinuxCgroupInfo implements CgroupInfo {
         } else if (version == 1) {
             return readMemoryLimitV1();
         }
-        return Long.MAX_VALUE;
+        return UNLIMITED_MEMORY;
     }
 
     private long readMemoryLimitV2() {
         String memMax = FileUtil.getStringFromFile(getV2CgroupBase() + "memory.max");
         if (memMax.isEmpty() || "max".equalsIgnoreCase(memMax.trim())) {
-            return Long.MAX_VALUE;
+            return UNLIMITED_MEMORY;
         }
-        return ParseUtil.parseLongOrDefault(memMax.trim(), Long.MAX_VALUE);
+        return ParseUtil.parseLongOrDefault(memMax.trim(), UNLIMITED_MEMORY);
     }
 
     private long readMemoryLimitV1() {
         String limitPath = getV1ControllerPath("memory") + "memory.limit_in_bytes";
         long limit = FileUtil.getLongFromFile(limitPath);
-        // In v1, a very large value (close to Long.MAX_VALUE) indicates unlimited
-        if (limit == 0 || limit > Long.MAX_VALUE - 4096) {
-            return Long.MAX_VALUE;
+        if (limit == 0 || limit > UNLIMITED_MEMORY - 4096) {
+            return UNLIMITED_MEMORY;
         }
         return limit;
     }
@@ -335,25 +324,25 @@ public class LinuxCgroupInfo implements CgroupInfo {
         } else if (version == 1) {
             return readPidLimitV1();
         }
-        return -1L;
+        return UNLIMITED;
     }
 
     private long readPidLimitV2() {
         String pidsMax = FileUtil.getStringFromFile(getV2CgroupBase() + "pids.max");
         if (pidsMax.isEmpty() || "max".equalsIgnoreCase(pidsMax.trim())) {
-            return -1L;
+            return UNLIMITED;
         }
-        return ParseUtil.parseLongOrDefault(pidsMax.trim(), -1L);
+        return ParseUtil.parseLongOrDefault(pidsMax.trim(), UNLIMITED);
     }
 
     private long readPidLimitV1() {
         String maxPath = getV1ControllerPath("pids") + "pids.max";
         String pidsMax = FileUtil.getStringFromFile(maxPath);
         if (pidsMax.isEmpty() || "max".equalsIgnoreCase(pidsMax.trim())) {
-            return -1L;
+            return UNLIMITED;
         }
-        long limit = ParseUtil.parseLongOrDefault(pidsMax.trim(), -1L);
-        return limit == 0 ? -1L : limit;
+        long limit = ParseUtil.parseLongOrDefault(pidsMax.trim(), UNLIMITED);
+        return limit == 0 ? UNLIMITED : limit;
     }
 
     private long readPidCurrentV2() {

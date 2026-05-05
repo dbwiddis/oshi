@@ -13,88 +13,120 @@ import oshi.annotation.concurrent.ThreadSafe;
  * This interface provides access to resource limits and usage metrics for processes running in cgroups, supporting both
  * cgroup v1 and v2.
  * <p>
- * Sentinel values are used to indicate special conditions:
- * <ul>
- * <li>{@code -1} for unlimited quota or PIDs</li>
- * <li>{@code 100000L} for CPU period when not set (standard default)</li>
- * <li>{@code Long.MAX_VALUE} for unlimited memory</li>
- * <li>{@code 0} for version when not in a cgroup</li>
- * <li>{@code -1.0d} for unlimited effective CPUs</li>
- * </ul>
+ * Default implementations return sentinel values indicating that the process is not running in a containerized
+ * environment. Platform-specific implementations override these methods with actual cgroup data.
  */
 @PublicApi
 @ThreadSafe
 public interface CgroupInfo {
+
+    /** Sentinel value for unlimited CPU quota or PIDs. */
+    long UNLIMITED = -1L;
+
+    /** Standard default CPU period in microseconds. */
+    long DEFAULT_CPU_PERIOD = 100_000L;
+
+    /** Sentinel value for unlimited memory. */
+    long UNLIMITED_MEMORY = Long.MAX_VALUE;
+
+    /** Sentinel value for unlimited effective CPUs. */
+    double UNLIMITED_CPUS = -1.0d;
 
     /**
      * Returns whether the current process is running in a containerized environment (cgroup).
      *
      * @return {@code true} if running in a cgroup, {@code false} otherwise
      */
-    boolean isContainerized();
+    default boolean isContainerized() {
+        return false;
+    }
 
     /**
      * Returns the cgroup version being used.
      *
      * @return {@code 1} for cgroup v1, {@code 2} for cgroup v2, or {@code 0} if not in a cgroup
      */
-    int getVersion();
+    default int getVersion() {
+        return 0;
+    }
 
     /**
      * Returns the CPU quota for the cgroup in microseconds.
      *
-     * @return the CPU quota in microseconds, or {@code -1} if unlimited
+     * @return the CPU quota in microseconds, or {@link #UNLIMITED} if unlimited
      */
-    long getCpuQuota();
+    default long getCpuQuota() {
+        return UNLIMITED;
+    }
 
     /**
      * Returns the CPU period for the cgroup in microseconds.
      *
-     * @return the CPU period in microseconds, or {@code 100000L} as the standard default when not explicitly set
+     * @return the CPU period in microseconds, or {@link #DEFAULT_CPU_PERIOD} as the standard default when not
+     *         explicitly set
      */
-    long getCpuPeriod();
+    default long getCpuPeriod() {
+        return DEFAULT_CPU_PERIOD;
+    }
 
     /**
      * Returns the total CPU usage for the cgroup in nanoseconds.
      *
      * @return the CPU usage in nanoseconds
      */
-    long getCpuUsage();
+    default long getCpuUsage() {
+        return 0L;
+    }
 
     /**
      * Returns the effective number of CPUs available to the cgroup.
      * <p>
      * This is calculated as {@code quota / period} when a quota is set.
      *
-     * @return the effective number of CPUs as a double, or {@code -1.0d} if unlimited
+     * @return the effective number of CPUs as a double, or {@link #UNLIMITED_CPUS} if unlimited
      */
-    double getEffectiveCpus();
+    default double getEffectiveCpus() {
+        long quota = getCpuQuota();
+        long period = getCpuPeriod();
+        if (quota <= 0 || period <= 0) {
+            return UNLIMITED_CPUS;
+        }
+        return (double) quota / period;
+    }
 
     /**
      * Returns the memory limit for the cgroup in bytes.
      *
-     * @return the memory limit in bytes, or {@code Long.MAX_VALUE} if unlimited
+     * @return the memory limit in bytes, or {@link #UNLIMITED_MEMORY} if unlimited
      */
-    long getMemoryLimit();
+    default long getMemoryLimit() {
+        return UNLIMITED_MEMORY;
+    }
 
     /**
      * Returns the current memory usage for the cgroup in bytes.
      *
      * @return the memory usage in bytes
      */
-    long getMemoryUsage();
+    default long getMemoryUsage() {
+        return 0L;
+    }
 
     /**
      * Returns the maximum number of PIDs allowed in the cgroup.
      *
-     * @return the PID limit, or {@code -1} if unlimited
+     * @return the PID limit, or {@link #UNLIMITED} if unlimited
      */
-    long getPidLimit();
+    default long getPidLimit() {
+        return UNLIMITED;
+    }
 
     /**
      * Returns the current number of PIDs in the cgroup.
      *
      * @return the current PID count
      */
-    long getPidCurrent();
+    default long getPidCurrent() {
+        return 0L;
+    }
 }
