@@ -4,6 +4,9 @@
  */
 package oshi.software.common.os.linux;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
@@ -11,7 +14,6 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.CgroupInfo;
 import oshi.util.FileUtil;
-import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.linux.ProcPath;
 import oshi.util.linux.SysPath;
@@ -33,12 +35,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     private static final String[] CONTAINER_MARKERS = { "/docker/", "/kubepods/", "/lxc/", "/containerd/", "/crio-",
             "/buildkit/" };
 
-    private final Supplier<Integer> versionSupplier = Memoizer.memoize(this::detectVersion);
-    private final Supplier<String> cgroupPathSupplier = Memoizer.memoize(this::parseCgroupPath);
-    private final Supplier<Long> cpuQuotaSupplier = Memoizer.memoize(this::readCpuQuota);
-    private final Supplier<Long> cpuPeriodSupplier = Memoizer.memoize(this::readCpuPeriod);
-    private final Supplier<Long> memoryLimitSupplier = Memoizer.memoize(this::readMemoryLimit);
-    private final Supplier<Long> pidLimitSupplier = Memoizer.memoize(this::readPidLimit);
+    private final Supplier<Integer> versionSupplier = memoize(this::detectVersion);
+    private final Supplier<String> cgroupPathSupplier = memoize(this::parseCgroupPath);
+    private final Supplier<Long> cpuQuotaSupplier = memoize(this::readCpuQuota, defaultExpiration());
+    private final Supplier<Long> cpuPeriodSupplier = memoize(this::readCpuPeriod, defaultExpiration());
+    private final Supplier<Long> memoryLimitSupplier = memoize(this::readMemoryLimit, defaultExpiration());
+    private final Supplier<Long> pidLimitSupplier = memoize(this::readPidLimit, defaultExpiration());
 
     /**
      * Constructs a new LinuxCgroupInfo instance.
