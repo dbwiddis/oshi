@@ -3,16 +3,13 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.github.oshi&amp;sort=name)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
-![GitHub contributors](https://img.shields.io/github/contributors/oshi/oshi)
+[![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/oshi/oshi)](https://app.coderabbit.ai/dashboard/summary)
+[![GitHub contributors](https://img.shields.io/github/contributors/oshi/oshi)](https://github.com/oshi/oshi/graphs/contributors)
 
 OSHI is a free native (JNA or FFM) Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a
 cross-platform implementation to retrieve system information, such as OS version, processes,
 memory and CPU usage, disks and partitions, devices, sensors, etc.
-
-OSHI provides two native access implementations:
-- **JNA** (`oshi-core`): Uses [Java Native Access](https://github.com/java-native-access/jna). Supports JDK 8+. JPMS module: `com.github.oshi`.
-- **FFM** (`oshi-core-ffm`): Uses the JDK [Foreign Function &amp; Memory API](https://openjdk.org/jeps/454). Requires JDK 25+. JPMS module: `com.github.oshi.ffm`.
 
 Supported Platforms
 ---------------------------
@@ -36,17 +33,16 @@ Supported Features
 * USB Devices
 * Connected displays (with EDID info), graphics and audio cards
 * Sensors (temperature, fan speeds, voltage) on some hardware
+* Container resource limits and usage (cgroup v1/v2)
 * Printers (name, status, driver)
 
-Documentation
--------------
-* Javadocs — [JNA](https://oshi.github.io/oshi/oshi-core/apidocs/) \| [FFM](https://oshi.github.io/oshi/oshi-core-ffm/apidocs/)
-* [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)
-* [Change Log](https://github.com/oshi/oshi/blob/master/CHANGELOG.md)
-* [Performance Considerations](https://github.com/oshi/oshi/blob/master/PERFORMANCE.md)
-* [Major Version Breaking Changes](https://github.com/oshi/oshi/blob/master/UPGRADING.md)
-* [Sample Output](SampleOutput.md)
-* [Applications and Projects using OSHI](https://github.com/oshi/oshi/blob/master/src/site/resources/Projects.md)
+Native Access Implementations
+----------------------------
+OSHI provides two native access implementations:
+- **JNA** (`oshi-core`): Uses [Java Native Access](https://github.com/java-native-access/jna). Supports JDK 8+. JPMS module: `com.github.oshi`.
+- **FFM** (`oshi-core-ffm`): Uses the JDK [Foreign Function & Memory API](https://openjdk.org/jeps/454). Requires JDK 25+. JPMS module: `com.github.oshi.ffm`.
+
+Both implementations share the same API interfaces from `oshi-common`. Choose one at compile time, or include both and select at runtime (see [Usage](#usage) below).
 
 Downloads and Dependency Management
 -----------------------------------
@@ -55,35 +51,12 @@ Stable Release Versions
   * FFM: [oshi-core-ffm-7.0.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.0.1)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.0.2-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.2-SNAPSHOT)
-  * FFM: [oshi-core-ffm-7.0.2-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.2-SNAPSHOT/)
+  * JNA: [oshi-core-7.1.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.1.0-SNAPSHOT)
+  * FFM: [oshi-core-ffm-7.1.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.1.0-SNAPSHOT/)
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
-
-OSHI FFM Module
-----------------------------
-The **`oshi-core-ffm`** module provides a complete implementation using the JDK Foreign Function & Memory (FFM) API, with no dependency on JNA.
-
-- **Compatibility:**
-  - Requires **JDK 25+**.
-  - Supports Windows, macOS, and Linux.
-- **Usage:**
-  - Use this dependency **in place of** `oshi-core`.
-  - Import `oshi.ffm.SystemInfo` instead of `oshi.SystemInfo` as the entry-point.
-  - API imports (oshi.hardware.*, oshi.software.os.*) remain unchanged.
-- **Benefits:**
-  - Uses JDK-standard APIs for native access, improving long-term maintainability.
-  - Potential performance improvements by eliminating JNA overhead. See the [`oshi-benchmark`](https://github.com/oshi/oshi/blob/master/oshi-benchmark/) module for JMH comparisons.
-
-OSHI Common Module
-----------------------------
-The **`oshi-common`** module contains shared code used by both the JNA and FFM implementations, including API interfaces, abstract base classes, and a significant amount of default implementation logic that parses procfs, sysfs, and command-line output without any native calls.
-
-- **No native dependencies** — does not require JNA, FFM, or `--enable-native-access`.
-- Suitable for restricted JVM environments or use cases where full native access is unnecessary, such as Linux CPU and memory monitoring via `/proc` and `/sys`.
-- Can be used standalone by extending the abstract base classes with your own platform-specific logic.
 
 Usage
 -----
@@ -101,40 +74,68 @@ HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
 ```
 
-Sample Output
--------------
+To include both implementations and select at runtime:
 
-See [SystemInfoTest.java](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for examples. To see sample output for your machine:
-```sh
-git clone https://github.com/oshi/oshi.git && cd oshi
-
-./mvnw test-compile -pl oshi-core exec:java \
-  -Dexec.mainClass="oshi.SystemInfoTest" \
-  -Dexec.classpathScope="test"
+```java
+// Runtime selection — both return the same HAL/OS interfaces
+HardwareAbstractionLayer hal;
+OperatingSystem os;
+if (useFFM) { // Requires JDK 25+; supports Windows, macOS, Linux
+    oshi.ffm.SystemInfo si = new oshi.ffm.SystemInfo();
+    hal = si.getHardware();
+    os = si.getOperatingSystem();
+} else { // JDK 8+; supports all platforms including AIX, FreeBSD, OpenBSD, Solaris
+    oshi.SystemInfo si = new oshi.SystemInfo();
+    hal = si.getHardware();
+    os = si.getOperatingSystem();
+}
 ```
 
 Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-common/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://www.oshi.ooo/oshi-core/apidocs/com.github.oshi.common/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
 
-The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
+Documentation
+-------------
+* Javadocs — [JNA](https://oshi.github.io/oshi/oshi-core/apidocs/) \| [FFM](https://oshi.github.io/oshi/oshi-core-ffm/apidocs/)
+* [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)
+* [Change Log](https://github.com/oshi/oshi/blob/master/CHANGELOG.md)
+* [Performance Considerations](https://github.com/oshi/oshi/blob/master/PERFORMANCE.md)
+* [Major Version Breaking Changes](https://github.com/oshi/oshi/blob/master/UPGRADING.md)
+* [Sample Output](SampleOutput.html)
+* [Applications and Projects using OSHI](Projects.html)
 
-You can run some of the demos using `jbang`:
+Additional Modules
+------------------
+
+### [`oshi-demo`](https://github.com/oshi/oshi/blob/master/oshi-demo/) — Examples and Demos
+
+Proof-of-concept examples including a Swing GUI, JSON output, JMX integration, and more. Try instantly with [jbang](https://www.jbang.dev/):
 
 ```sh
-# list all the aliases
-jbang alias list oshi/oshi
-
-# run the json demo
-jbang json@oshi/oshi
-
-#run the gui
-jbang gui@oshi/oshi
+jbang json@oshi/oshi    # JSON dump of system info
+jbang gui@oshi/oshi     # Swing GUI dashboard
 ```
 
-The `oshi-benchmark` artifact (requires JDK 25+) provides [JMH benchmarks](https://github.com/oshi/oshi/blob/master/oshi-benchmark/src/main/java/oshi/benchmark/) comparing JNA and FFM implementations side by side. To run:
+See the [oshi-demo README](https://github.com/oshi/oshi/blob/master/oshi-demo/) for all available demos and usage instructions.
+
+### [`oshi-metrics`](https://github.com/oshi/oshi/blob/master/oshi-metrics/) — Micrometer Metrics
+
+First-party [Micrometer](https://micrometer.io/) integration providing system, process, and container metrics following [OpenTelemetry semantic conventions](https://opentelemetry.io/docs/specs/semconv/system/system-metrics/). Works with Prometheus, Grafana, Datadog, and any Micrometer-compatible backend.
+
+```java
+OshiMetrics.bindTo(registry, si.getHardware(), si.getOperatingSystem());
+```
+
+See the [oshi-metrics README](https://github.com/oshi/oshi/blob/master/oshi-metrics/) for full setup, selective registration, and the complete list of metrics.
+
+### [`oshi-benchmark`](https://github.com/oshi/oshi/blob/master/oshi-benchmark/) — JMH Benchmarks
+
+JMH benchmarks comparing JNA and FFM implementations side by side. Requires JDK 25+.
 
 ```sh
 ./oshi-benchmark/scripts/run-benchmarks.sh
 ```
+
+See the [oshi-benchmark README](https://github.com/oshi/oshi/blob/master/oshi-benchmark/) for running specific benchmarks and custom JMH options.
 
 Support
 -------
@@ -156,17 +157,17 @@ Tidelift will coordinate the fix and disclosure.
 
 Continuous Integration Test Status
 ----------------------------------
-[![AppVeyor Build Status](https://img.shields.io/appveyor/ci/dbwiddis/oshi/master.svg?logo=appveyor&amp;logoColor=white)](https://ci.appveyor.com/project/dbwiddis/oshi)
-[![Cirrus CI Build Status](https://img.shields.io/cirrus/github/oshi/oshi/master.svg?logo=cirrusci&amp;logoColor=white)](https://cirrus-ci.com/github/oshi/oshi)
+[![AppVeyor Build Status](https://img.shields.io/appveyor/ci/dbwiddis/oshi/master.svg?logo=appveyor&logoColor=white)](https://ci.appveyor.com/project/dbwiddis/oshi)
+[![Cirrus CI Build Status](https://img.shields.io/cirrus/github/oshi/oshi/master.svg?logo=cirrusci&logoColor=white)](https://cirrus-ci.com/github/oshi/oshi)
 [![Windows CI](https://github.com/oshi/oshi/workflows/Windows%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Windows+CI%22)
 [![macOS CI](https://github.com/oshi/oshi/workflows/macOS%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22macOS+CI%22)
 [![Linux CI](https://github.com/oshi/oshi/workflows/Linux%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Linux+CI%22)
 [![Unix CI](https://github.com/oshi/oshi/workflows/Unix%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Unix+CI%22)
-[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=bugs)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=sqale_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=reliability_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=security_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=bugs)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=security_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/28367.svg)](https://scan.coverity.com/projects/oshi-oshi)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4002c92342814fe1989a7841d9f427f1)](https://app.codacy.com/gh/oshi/oshi/dashboard?utm_source=gh&amp;utm_medium=referral&amp;utm_content=&amp;utm_campaign=Badge_grade)
 [![CodeQL](https://github.com/oshi/oshi/workflows/CodeQL/badge.svg)](https://github.com/oshi/oshi/security/code-scanning)

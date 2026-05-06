@@ -4,6 +4,7 @@
  */
 package oshi.metrics;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
@@ -61,7 +62,7 @@ public class NetworkMetrics implements MeterBinder {
 
     // Connection count cache to avoid repeated getConnections() calls per scrape
     private volatile long cacheTimestamp;
-    private volatile Map<TcpState, Long> tcpCounts = new EnumMap<>(TcpState.class);
+    private volatile Map<TcpState, Long> tcpCounts = Collections.emptyMap();
     private volatile long udpCount;
 
     /**
@@ -161,7 +162,7 @@ public class NetworkMetrics implements MeterBinder {
                             udp++;
                         }
                     }
-                    this.tcpCounts = tcp;
+                    this.tcpCounts = Collections.unmodifiableMap(tcp);
                     this.udpCount = udp;
                     this.cacheTimestamp = now;
                 }
