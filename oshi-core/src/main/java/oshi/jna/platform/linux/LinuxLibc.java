@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.linux;
@@ -93,4 +93,30 @@ public interface LinuxLibc extends LibC, CLibrary {
      *         success. A -1 return value indicates an error, and an error code is stored in errno.
      */
     NativeLong syscall(NativeLong number, Object... args);
+
+    @FieldOrder({ "ru_utime_sec", "ru_utime_usec", "ru_stime_sec", "ru_stime_usec", "ru_maxrss", "ru_ixrss", "ru_idrss",
+            "ru_isrss", "ru_minflt", "ru_majflt", "ru_nswap", "ru_inblock", "ru_oublock", "ru_msgsnd", "ru_msgrcv",
+            "ru_nsignals", "ru_nvcsw", "ru_nivcsw" })
+    class Rusage extends Structure {
+        public NativeLong ru_utime_sec;
+        public NativeLong ru_utime_usec;
+        public NativeLong ru_stime_sec;
+        public NativeLong ru_stime_usec;
+        public NativeLong ru_maxrss;
+        public NativeLong ru_ixrss;
+        public NativeLong ru_idrss;
+        public NativeLong ru_isrss;
+        public NativeLong ru_minflt;
+        public NativeLong ru_majflt;
+        public NativeLong ru_nswap;
+        public NativeLong ru_inblock;
+        public NativeLong ru_oublock;
+        public NativeLong ru_msgsnd;
+        public NativeLong ru_msgrcv;
+        public NativeLong ru_nsignals;
+        public NativeLong ru_nvcsw;
+        public NativeLong ru_nivcsw;
+    }
+
+    int getrusage(int who, Rusage rusage);
 }

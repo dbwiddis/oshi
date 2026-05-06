@@ -22,6 +22,8 @@ public interface CLibrary extends LibCAPI, Library {
 
     int AI_CANONNAME = 2;
 
+    int RUSAGE_SELF = 0;
+
     int UT_LINESIZE = 32;
     int UT_NAMESIZE = 32;
     int UT_HOSTSIZE = 256;

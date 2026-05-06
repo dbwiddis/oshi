@@ -30,11 +30,11 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.PsInfo;
@@ -87,7 +87,8 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long minorFaults;
     private long majorFaults;
-    private long contextSwitches = 0; // default
+    private long voluntaryContextSwitches;
+    private long involuntaryContextSwitches;
 
     public SolarisOSProcess(int pid, SolarisOperatingSystem os) {
         super(pid);
@@ -247,8 +248,13 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
+    public long getVoluntaryContextSwitches() {
+        return this.voluntaryContextSwitches;
+    }
+
+    @Override
+    public long getInvoluntaryContextSwitches() {
+        return this.involuntaryContextSwitches;
     }
 
     @Override
@@ -386,7 +392,8 @@ public class SolarisOSProcess extends AbstractOSProcess {
             this.bytesRead = usage.pr_ioch.longValue();
             this.majorFaults = usage.pr_majf.longValue();
             this.minorFaults = usage.pr_minf.longValue();
-            this.contextSwitches = usage.pr_ictx.longValue() + usage.pr_vctx.longValue();
+            this.voluntaryContextSwitches = usage.pr_vctx.longValue();
+            this.involuntaryContextSwitches = usage.pr_ictx.longValue();
         }
         return true;
     }

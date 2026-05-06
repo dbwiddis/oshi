@@ -25,7 +25,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
+import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
@@ -106,7 +106,8 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long minorFaults;
     private long majorFaults;
-    private long contextSwitches;
+    private long voluntaryContextSwitches;
+    private long involuntaryContextSwitches;
     private int bitness;
     private String commandLineBackup;
 
@@ -383,8 +384,13 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
+    public long getVoluntaryContextSwitches() {
+        return this.voluntaryContextSwitches;
+    }
+
+    @Override
+    public long getInvoluntaryContextSwitches() {
+        return this.involuntaryContextSwitches;
     }
 
     @Override
@@ -452,7 +458,8 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MAJFLT), 0L);
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
-        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        this.voluntaryContextSwitches = voluntaryContextSwitches;
+        this.involuntaryContextSwitches = nonVoluntaryContextSwitches;
         this.commandLineBackup = psMap.get(PsKeywords.ARGS);
         return true;
     }
