@@ -91,7 +91,8 @@ public class CpuMetrics implements MeterBinder {
             final int cpuIndex = i;
             Gauge.builder(CPU_FREQUENCY, processor, p -> {
                 long[] freqs = p.getCurrentFreq();
-                return cpuIndex < freqs.length ? (double) freqs[cpuIndex] : 0d;
+                long freq = cpuIndex < freqs.length ? freqs[cpuIndex] : 0L;
+                return freq > 0 ? (double) freq : 0d;
             }).tag(CPU_LOGICAL_NUMBER_KEY, String.valueOf(i))
                     .description("Operating frequency of the logical CPU in Hertz").baseUnit("Hz").register(registry);
         }
