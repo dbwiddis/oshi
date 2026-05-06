@@ -55,6 +55,8 @@ public final class ProcPath {
     public static final String UPTIME = PROC + "/uptime";
     public static final String VERSION = PROC + "/version";
     public static final String VMSTAT = PROC + "/vmstat";
+    public static final String SELF_CGROUP = PROC + "/self/cgroup";
+    public static final String FILESYSTEMS = PROC + "/filesystems";
 
     private ProcPath() {
     }

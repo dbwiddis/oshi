@@ -30,6 +30,7 @@ public final class SysPath {
     public static final String POWER_SUPPLY = SYS + "class/power_supply";
     public static final String HWMON = SYS + "class/hwmon/";
     public static final String THERMAL = SYS + "class/thermal/";
+    public static final String CGROUP = SYS + "fs/cgroup/";
 
     private SysPath() {
     }

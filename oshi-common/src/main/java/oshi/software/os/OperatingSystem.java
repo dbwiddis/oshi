@@ -390,6 +390,19 @@ public interface OperatingSystem {
     }
 
     /**
+     * Retrieves cgroup information for the current process.
+     * <p>
+     * On Linux, this returns detailed cgroup resource limits and usage metrics. On non-Linux platforms, this returns a
+     * no-op instance where {@link CgroupInfo#isContainerized()} returns {@code false}.
+     *
+     * @return A {@link CgroupInfo} object representing cgroup information.
+     */
+    default CgroupInfo getCgroupInfo() {
+        return new CgroupInfo() {
+        };
+    }
+
+    /**
      * A class representing the Operating System version details.
      */
     @PublicApi
