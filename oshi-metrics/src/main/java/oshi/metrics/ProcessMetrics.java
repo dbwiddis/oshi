@@ -30,7 +30,8 @@ import io.micrometer.core.instrument.binder.MeterBinder;
  * <li>{@code process.thread.count} — thread count</li>
  * <li>{@code process.open_file_descriptor.count} — open file descriptors</li>
  * <li>{@code process.paging.faults} — page faults by type (major, minor)</li>
- * <li>{@code process.context_switches} — context switches (total; voluntary/involuntary split unavailable)</li>
+ * <li>{@code process.context_switches} — context switches by type (voluntary/involuntary on POSIX, or total on
+ * Windows)</li>
  * <li>{@code process.uptime} — process uptime in seconds</li>
  * </ul>
  *
@@ -110,10 +111,26 @@ public class ProcessMetrics implements MeterBinder {
                 .baseUnit("{fault}").register(registry);
 
         // process.context_switches — Counter, unit "{context_switch}", attr process.context_switch.type (Required)
-        FunctionCounter.builder(CONTEXT_SWITCHES, processSupplier, s -> s.get().getContextSwitches())
-                .tag("process.context_switch.type", "total")
-                .description("Number of times the process has been context switched").baseUnit("{context_switch}")
-                .register(registry);
+        // Only emit voluntary/involuntary if the platform provides the split; otherwise emit total only
+        OSProcess probe = processSupplier.get();
+        long vol = probe.getVoluntaryContextSwitches();
+        long invol = probe.getInvoluntaryContextSwitches();
+        long total = probe.getContextSwitches();
+        if (vol + invol == total && total > 0) {
+            FunctionCounter.builder(CONTEXT_SWITCHES, processSupplier, s -> s.get().getVoluntaryContextSwitches())
+                    .tag("process.context_switch.type", "voluntary")
+                    .description("Number of times the process has been context switched").baseUnit("{context_switch}")
+                    .register(registry);
+            FunctionCounter.builder(CONTEXT_SWITCHES, processSupplier, s -> s.get().getInvoluntaryContextSwitches())
+                    .tag("process.context_switch.type", "involuntary")
+                    .description("Number of times the process has been context switched").baseUnit("{context_switch}")
+                    .register(registry);
+        } else if (total > 0) {
+            FunctionCounter.builder(CONTEXT_SWITCHES, processSupplier, s -> s.get().getContextSwitches())
+                    .tag("process.context_switch.type", "total")
+                    .description("Number of times the process has been context switched").baseUnit("{context_switch}")
+                    .register(registry);
+        }
 
         // process.uptime — Gauge, unit "s"
         Gauge.builder(UPTIME, processSupplier, s -> s.get().getUpTime() / MS_PER_SECOND)

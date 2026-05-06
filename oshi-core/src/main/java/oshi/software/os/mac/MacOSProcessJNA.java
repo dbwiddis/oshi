@@ -32,7 +32,6 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
-import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Group;
 import com.sun.jna.platform.mac.SystemB.Passwd;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
@@ -43,6 +42,7 @@ import oshi.driver.common.mac.ThreadInfo;
 import oshi.jna.Struct.CloseableProcTaskAllInfo;
 import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
+import oshi.jna.platform.mac.SystemB;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.common.os.mac.MacOSThread;
 import oshi.software.common.os.mac.MacOperatingSystem;
@@ -138,6 +138,8 @@ public class MacOSProcessJNA extends AbstractOSProcess {
     private long minorFaults;
     private long majorFaults;
     private long contextSwitches;
+    private long voluntaryContextSwitches;
+    private long involuntaryContextSwitches;
 
     public MacOSProcessJNA(int pid, int major, int minor, MacOperatingSystem os) {
         super(pid);
@@ -401,6 +403,16 @@ public class MacOSProcessJNA extends AbstractOSProcess {
     }
 
     @Override
+    public long getVoluntaryContextSwitches() {
+        return this.voluntaryContextSwitches;
+    }
+
+    @Override
+    public long getInvoluntaryContextSwitches() {
+        return this.involuntaryContextSwitches;
+    }
+
+    @Override
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
         try (CloseableProcTaskAllInfo taskAllInfo = new CloseableProcTaskAllInfo()) {
@@ -469,7 +481,24 @@ public class MacOSProcessJNA extends AbstractOSProcess {
             this.majorFaults = taskAllInfo.ptinfo.pti_pageins;
             // testing using getrusage confirms pti_faults includes both major and minor
             this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
-            this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
+            // getrusage(RUSAGE_SELF) aggregates across all threads for current process
+            if (getProcessID() == this.os.getProcessId()) {
+                oshi.jna.platform.mac.SystemB.Rusage rusage = new oshi.jna.platform.mac.SystemB.Rusage();
+                if (0 == oshi.jna.platform.mac.SystemB.INSTANCE.getrusage(oshi.jna.platform.mac.SystemB.RUSAGE_SELF,
+                        rusage)) {
+                    this.voluntaryContextSwitches = rusage.ru_nvcsw.longValue();
+                    this.involuntaryContextSwitches = rusage.ru_nivcsw.longValue();
+                    this.contextSwitches = this.voluntaryContextSwitches + this.involuntaryContextSwitches;
+                } else {
+                    // getrusage failed; fall back to pti_csw (combined only)
+                    this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
+                    this.voluntaryContextSwitches = 0L;
+                    this.involuntaryContextSwitches = 0L;
+                }
+            } else {
+                // For other processes, only combined total is available via pti_csw
+                this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
+            }
         }
         if (this.majorVersion > 10 || (this.majorVersion == 10 && this.minorVersion >= 9)) {
             try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {

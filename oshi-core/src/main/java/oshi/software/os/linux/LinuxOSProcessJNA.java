@@ -12,13 +12,48 @@ import oshi.software.common.os.linux.LinuxOSProcess;
 import oshi.software.common.os.linux.LinuxOperatingSystem;
 
 /**
- * JNA-based Linux OS process. Implements {@code getrlimit} via JNA.
+ * JNA-based Linux OS process. Implements {@code getrlimit} and {@code getrusage} via JNA.
  */
 @ThreadSafe
 public class LinuxOSProcessJNA extends LinuxOSProcess {
 
+    private boolean rusagePopulated;
+    private long cachedVoluntaryContextSwitches;
+    private long cachedInvoluntaryContextSwitches;
+
     public LinuxOSProcessJNA(int pid, LinuxOperatingSystem os) {
         super(pid, os);
+    }
+
+    @Override
+    public boolean updateAttributes() {
+        boolean result = super.updateAttributes();
+        if (getProcessID() == getOs().getProcessId()) {
+            this.rusagePopulated = false;
+            LinuxLibc.Rusage rusage = new LinuxLibc.Rusage();
+            if (0 == LinuxLibc.INSTANCE.getrusage(LinuxLibc.RUSAGE_SELF, rusage)) {
+                this.cachedVoluntaryContextSwitches = rusage.ru_nvcsw.longValue();
+                this.cachedInvoluntaryContextSwitches = rusage.ru_nivcsw.longValue();
+                this.rusagePopulated = true;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public long getVoluntaryContextSwitches() {
+        if (rusagePopulated) {
+            return cachedVoluntaryContextSwitches;
+        }
+        return super.getVoluntaryContextSwitches();
+    }
+
+    @Override
+    public long getInvoluntaryContextSwitches() {
+        if (rusagePopulated) {
+            return cachedInvoluntaryContextSwitches;
+        }
+        return super.getInvoluntaryContextSwitches();
     }
 
     @Override

@@ -87,6 +87,7 @@ import oshi.driver.common.mac.ThreadInfo;
 import oshi.ffm.ForeignFunctions;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.mac.MacSystemFunctions;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.common.os.mac.MacOSThread;
@@ -182,6 +183,8 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     private long minorFaults;
     private long majorFaults;
     private long contextSwitches;
+    private long voluntaryContextSwitches;
+    private long involuntaryContextSwitches;
 
     public MacOSProcessFFM(int pid, int major, int minor, MacOperatingSystemFFM os) {
         super(pid);
@@ -456,6 +459,16 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     }
 
     @Override
+    public long getVoluntaryContextSwitches() {
+        return this.voluntaryContextSwitches;
+    }
+
+    @Override
+    public long getInvoluntaryContextSwitches() {
+        return this.involuntaryContextSwitches;
+    }
+
+    @Override
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
         int pid = getProcessID();
@@ -550,6 +563,26 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             // testing using getrusage confirms pti_faults includes both major and minor
             this.minorFaults = totalFaults - this.majorFaults;
             this.contextSwitches = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_CSW));
+            // getrusage(RUSAGE_SELF) aggregates across all threads for current process
+            if (getProcessID() == this.os.getProcessId()) {
+                try {
+                    MemorySegment rusageSegment = arena.allocate(MacSystemFunctions.RUSAGE_SIZE);
+                    if (0 == MacSystemFunctions.getrusage(MacSystemFunctions.RUSAGE_SELF, rusageSegment)) {
+                        this.voluntaryContextSwitches = rusageSegment.get(JAVA_LONG,
+                                MacSystemFunctions.RUSAGE_NVCSW_OFFSET);
+                        this.involuntaryContextSwitches = rusageSegment.get(JAVA_LONG,
+                                MacSystemFunctions.RUSAGE_NIVCSW_OFFSET);
+                        this.contextSwitches = this.voluntaryContextSwitches + this.involuntaryContextSwitches;
+                    } else {
+                        this.voluntaryContextSwitches = 0L;
+                        this.involuntaryContextSwitches = 0L;
+                    }
+                } catch (Throwable t) {
+                    LOG.debug("FFM getrusage failed: {}", t.toString());
+                    this.voluntaryContextSwitches = 0L;
+                    this.involuntaryContextSwitches = 0L;
+                }
+            }
 
             // Get rusage info for newer OS versions
             if (this.majorVersion > 10 || (this.majorVersion == 10 && this.minorVersion >= 9)) {

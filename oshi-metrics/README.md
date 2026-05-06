@@ -173,7 +173,7 @@ Not implemented — OSHI does not expose system-level major/minor page fault cou
 | `process.thread.count` | Gauge | `{thread}` | — | Thread count |
 | `process.open_file_descriptor.count` | Gauge | `{file_descriptor}` | — | Open file descriptors |
 | `process.paging.faults` | FunctionCounter | `{fault}` | `system.paging.fault.type` (major, minor) | Page faults |
-| `process.context_switches` | FunctionCounter | `{context_switch}` | `process.context_switch.type` (total) | Context switches |
+| `process.context_switches` | FunctionCounter | `{context_switch}` | `process.context_switch.type` (voluntary, involuntary or total) | Context switches; split via getrusage on POSIX for current process, total-only on Windows |
 | `process.uptime` | Gauge | `s` | — | Process uptime |
 
 #### Not implemented

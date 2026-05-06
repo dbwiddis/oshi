@@ -417,17 +417,49 @@ public interface OSProcess {
     }
 
     /**
-     * A snapshot of the context switches the process has done. Since the context switches could be voluntary and
-     * non-voluntary, this gives the sum of both.
+     * A snapshot of the context switches the process has done, equal to the sum of
+     * {@link #getVoluntaryContextSwitches()} and {@link #getInvoluntaryContextSwitches()} on platforms that provide the
+     * split. On Windows, this returns the total from performance counters but the split is unavailable (returns 0). On
+     * macOS for non-current processes, this returns the combined total from the kernel but the split is unavailable.
      * <p>
-     * Not available on Windows. An approximation may be made by summing associated values from
-     * {@link OSThread#getContextSwitches()}.
+     * For the current process on supported POSIX platforms, this aggregates across all threads via
+     * {@code getrusage(RUSAGE_SELF)}. For other processes, platform-specific sources are used.
      * <p>
-     * Not available on AIX.
+     * Not available on AIX (returns 0).
      *
      * @return sum of both voluntary and involuntary context switches if available, 0 otherwise.
      */
     default long getContextSwitches() {
+        return getVoluntaryContextSwitches() + getInvoluntaryContextSwitches();
+    }
+
+    /**
+     * The number of voluntary context switches the process has made. A voluntary context switch occurs when a process
+     * gives up the CPU before its time slice expires (e.g., waiting for I/O).
+     * <p>
+     * For the current process, {@code getrusage(RUSAGE_SELF)} is used on supported POSIX platforms, which aggregates
+     * across all threads. For other processes, platform-specific sources are used ({@code /proc/[pid]/status} on Linux,
+     * {@code ps} on FreeBSD/OpenBSD, {@code /proc/[pid]/usage} on Solaris). On macOS, the split is only available for
+     * the current process; for other processes this returns 0.
+     *
+     * @return voluntary context switches if available, 0 otherwise.
+     */
+    default long getVoluntaryContextSwitches() {
+        return 0L;
+    }
+
+    /**
+     * The number of involuntary context switches the process has made. An involuntary context switch occurs when the
+     * scheduler preempts the process (e.g., time slice expired).
+     * <p>
+     * For the current process, {@code getrusage(RUSAGE_SELF)} is used on supported POSIX platforms, which aggregates
+     * across all threads. For other processes, platform-specific sources are used ({@code /proc/[pid]/status} on Linux,
+     * {@code ps} on FreeBSD/OpenBSD, {@code /proc/[pid]/usage} on Solaris). On macOS, the split is only available for
+     * the current process; for other processes this returns 0.
+     *
+     * @return involuntary context switches if available, 0 otherwise.
+     */
+    default long getInvoluntaryContextSwitches() {
         return 0L;
     }
 

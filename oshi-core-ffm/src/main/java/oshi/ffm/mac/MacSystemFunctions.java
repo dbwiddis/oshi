@@ -97,6 +97,23 @@ public final class MacSystemFunctions extends MacForeignFunctions {
         return (int) getpid.invokeExact();
     }
 
+    // int getrusage(int who, struct rusage *rusage);
+
+    public static final int RUSAGE_SELF = 0;
+    /** Size of struct rusage on macOS LP64 (2 timevals of 16 bytes + 14 longs = 144 bytes). */
+    public static final long RUSAGE_SIZE = 144L;
+    /** Byte offset of ru_nvcsw in struct rusage. */
+    public static final long RUSAGE_NVCSW_OFFSET = 128L;
+    /** Byte offset of ru_nivcsw in struct rusage. */
+    public static final long RUSAGE_NIVCSW_OFFSET = 136L;
+
+    private static final MethodHandle getrusage = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("getrusage"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
+
+    public static int getrusage(int who, MemorySegment rusage) throws Throwable {
+        return (int) getrusage.invokeExact(who, rusage);
+    }
+
     // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
     private static final MethodHandle sysctl = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("sysctl"),

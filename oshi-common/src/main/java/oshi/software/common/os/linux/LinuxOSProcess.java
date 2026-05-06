@@ -101,7 +101,8 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long minorFaults;
     private long majorFaults;
-    private long contextSwitches;
+    private long voluntaryContextSwitches;
+    private long involuntaryContextSwitches;
 
     public LinuxOSProcess(int pid, LinuxOperatingSystem os) {
         super(pid);
@@ -275,8 +276,13 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
+    public long getVoluntaryContextSwitches() {
+        return this.voluntaryContextSwitches;
+    }
+
+    @Override
+    public long getInvoluntaryContextSwitches() {
+        return this.involuntaryContextSwitches;
     }
 
     @Override
@@ -431,7 +437,8 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         this.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("nonvoluntary_ctxt_switches"), 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("voluntary_ctxt_switches"), 0L);
-        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        this.voluntaryContextSwitches = voluntaryContextSwitches;
+        this.involuntaryContextSwitches = nonVoluntaryContextSwitches;
 
         this.upTime = now - startTime;
 

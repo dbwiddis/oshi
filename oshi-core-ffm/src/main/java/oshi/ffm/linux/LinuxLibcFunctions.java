@@ -130,6 +130,15 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     private static final VarHandle RLIMIT_MAX = RLIMIT_LAYOUT
             .varHandle(MemoryLayout.PathElement.groupElement("rlim_max"));
 
+    /** Size of {@code struct rusage} on LP64 Linux (18 longs = 144 bytes). */
+    public static final long RUSAGE_SIZE = 144L;
+    /** Byte offset of {@code ru_nvcsw} in {@code struct rusage} (16th long). */
+    public static final long RUSAGE_NVCSW_OFFSET = 128L;
+    /** Byte offset of {@code ru_nivcsw} in {@code struct rusage} (17th long). */
+    public static final long RUSAGE_NIVCSW_OFFSET = 136L;
+
+    public static final int RUSAGE_SELF = 0;
+
     /**
      * {@code struct addrinfo} layout (64-bit Linux).
      *
@@ -217,6 +226,7 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     private static final MethodHandle freeaddrinfo;
     private static final MethodHandle gai_strerror;
     private static final MethodHandle getrlimit;
+    private static final MethodHandle getrusage;
 
     private static final boolean HAS_GETTID;
 
@@ -244,6 +254,8 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
         gai_strerror = LINKER.downcallHandle(libc.findOrThrow("gai_strerror"),
                 FunctionDescriptor.of(ADDRESS, JAVA_INT));
         getrlimit = LINKER.downcallHandle(libc.findOrThrow("getrlimit"),
+                FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
+        getrusage = LINKER.downcallHandle(libc.findOrThrow("getrusage"),
                 FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
         MethodHandle hGettid = null;
@@ -555,6 +567,18 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
      */
     public static int getrlimit(int resource, MemorySegment rlim) throws Throwable {
         return (int) getrlimit.invokeExact(resource, rlim);
+    }
+
+    /**
+     * Calls {@code getrusage(who, rusage)}.
+     *
+     * @param who    RUSAGE_SELF (0)
+     * @param rusage segment of at least {@link #RUSAGE_SIZE} bytes
+     * @return 0 on success, -1 on failure
+     * @throws Throwable on FFM invocation error
+     */
+    public static int getrusage(int who, MemorySegment rusage) throws Throwable {
+        return (int) getrusage.invokeExact(who, rusage);
     }
 
     /**
