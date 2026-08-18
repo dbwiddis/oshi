@@ -83,8 +83,10 @@ public final class LayoutDump {
             List<Field> fields = new ArrayList<>();
             List<String> unreadable = new ArrayList<>();
             for (Field f : clazz.getDeclaredFields()) {
-                if (!Modifier.isStatic(f.getModifiers())
-                        || !(MemoryLayout.class.isAssignableFrom(f.getType()) || f.getName().startsWith("OFFSET_"))) {
+                // _SIZE catches a hand-written struct size such as MIB_IF_ROW2_SIZE, which carries the same risk
+                // as an offset and is just as unchecked
+                if (!Modifier.isStatic(f.getModifiers()) || !(MemoryLayout.class.isAssignableFrom(f.getType())
+                        || f.getName().startsWith("OFFSET_") || f.getName().endsWith("_SIZE"))) {
                     continue;
                 }
                 // Reading a non-public field would need setAccessible, which forbidden-apis bans. Name it instead,
