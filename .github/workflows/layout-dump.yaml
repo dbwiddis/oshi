@@ -1,0 +1,91 @@
+name: FFM Layout Dump
+
+# Prints every native struct mapping in oshi-core-ffm with its computed offsets, next to the same structs' true
+# layout taken from the platform's own headers. Read the two side by side.
+#
+# This exists because a mapping can be wrong in a way no test notices. A StructLayout with a mis-sized member can
+# still report the correct total size when padding elsewhere absorbs the difference, leaving only an interior offset
+# wrong; PR #3657 was exactly that, and it silently broke every macOS TCP connection state. An OFFSET_ constant is
+# worse still, being a number somebody worked out by hand with no arithmetic behind it at all.
+#
+# Most mapping classes declare their downcall handles beside their layouts, so they load only on their own
+# platform. The Windows mappings - the perf-data blocks walked out of HKEY_PERFORMANCE_DATA, and the iphlpapi
+# structs carrying nearly all the hand-written offsets - can only be dumped on a Windows runner.
+#
+# This is a diagnostic that lives on the fork, so it triggers on pushing its own branch: a workflow_dispatch is
+# only offered for workflows present on the default branch, and the fork's master is kept in sync with upstream.
+# Push the branch to run it. The dispatch trigger is kept for the day this lands upstream.
+
+on:
+  push:
+    branches:
+      - layout-dump
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dump:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Setup Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          java-version: 25
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build oshi-core-ffm
+        shell: bash
+        run: ./mvnw -q -pl oshi-core-ffm -am install -DskipTests -B -Dmaven.gitcommitid.skip=true -Djacoco.skip=true
+
+      - name: Dump the FFM mappings
+        shell: bash
+        run: |
+          # Run first so a Maven failure fails the step, rather than being swallowed by the filter downstream
+          ./mvnw -pl oshi-core-ffm exec:java -B -Dmaven.gitcommitid.skip=true \
+            -Dexec.mainClass=oshi.ffm.LayoutDump -Dexec.classpathScope=test > raw.txt 2>&1
+          # Keep only this class's own log lines: other mappings log their own init failures, stack traces included
+          grep -F 'INFO oshi.ffm.LayoutDump - ' raw.txt | sed -E 's/^.*INFO oshi\.ffm\.LayoutDump - //' > ffm-layouts.txt
+          cat ffm-layouts.txt
+          {
+            echo "## FFM mappings as computed (${{ matrix.os }})"
+            echo '```'
+            cat ffm-layouts.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Ground truth from the SDK headers (MSVC)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
+          cl /nologo .github\layout-check\windows.c /Fe:layout-truth.exe /link iphlpapi.lib ws2_32.lib
+          layout-truth.exe > headers.txt
+          type headers.txt
+
+      - name: Ground truth from the system headers (clang)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          clang -Xclang -fdump-record-layouts -fsyntax-only .github/layout-check/unix.c > headers.txt 2>&1
+          cat headers.txt
+
+      - name: Add ground truth to the summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Header ground truth (${{ matrix.os }})"
+            echo '```'
+            cat headers.txt 2>/dev/null || echo "not produced - see the step log"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -40,6 +40,7 @@
 
     <!--java.base -->
     <allow class="java.net.NetworkInterface" />
+    <allow class="java.net.URISyntaxException" />
     <allow pkg="java.io" />
     <allow pkg="java.lang" />
     <allow pkg="java.math" />
