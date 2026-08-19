@@ -1,0 +1,87 @@
+name: Routing Dump Probe
+
+# Reports what a NET_RT_DUMP consumer must know on each BSD: the rt_msghdr layout, where the sockaddr array begins,
+# and the padding unit it advances by. That last one is the reason this exists -- the unit is sizeof(uint32_t) on some
+# of these and sizeof(long) on others, and getting it wrong walks off the end of every message with more than one
+# address. It is measured here rather than read from a header macro: a walk with the wrong unit does not land exactly
+# on the message boundary, so the unit that fits every message is the right one.
+#
+# Fork-side diagnostic. Push this branch to run it.
+
+on:
+  push:
+    branches:
+      - layout-dump
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+
+  freebsd:
+    name: FreeBSD
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: vmactions/freebsd-vm@83b151f58c6047089f4c80eb5ba2039d158ce093 # v1
+        with:
+          disable-cache: true
+          usesh: true
+          run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+
+  dragonflybsd:
+    name: DragonFly BSD
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: vmactions/dragonflybsd-vm@bc8ccbaa091ce3624c93f2dc328ae48129b07580 # v1
+        with:
+          disable-cache: true
+          usesh: true
+          release: "6.4.2"
+          run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+
+  netbsd:
+    name: NetBSD
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: vmactions/netbsd-vm@00081e82b14bc40114eb97f32b4455306828516b # v1
+        with:
+          disable-cache: true
+          usesh: true
+          release: "10.1"
+          run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+
+  openbsd:
+    name: OpenBSD
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: vmactions/openbsd-vm@e6c68b637a12e83519688d115d57d5b0b53923cd # v1
+        with:
+          disable-cache: true
+          usesh: true
+          release: "7.9"
+          run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
