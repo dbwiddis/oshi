@@ -25,7 +25,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+      - run: |
+          cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+          echo "===== RTF_ flags in net/route.h ====="
+          grep -E '^#define[[:space:]]+RTF_' /usr/include/net/route.h || true
 
   freebsd:
     name: FreeBSD
@@ -39,7 +42,10 @@ jobs:
         with:
           disable-cache: true
           usesh: true
-          run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+          run: |
+            cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+            echo "===== RTF_ flags in net/route.h ====="
+            grep -E '^#define[[:space:]]+RTF_' /usr/include/net/route.h || true
 
   dragonflybsd:
     name: DragonFly BSD
@@ -54,7 +60,10 @@ jobs:
           disable-cache: true
           usesh: true
           release: "6.4.2"
-          run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+          run: |
+            cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+            echo "===== RTF_ flags in net/route.h ====="
+            grep -E '^#define[[:space:]]+RTF_' /usr/include/net/route.h || true
 
   netbsd:
     name: NetBSD
@@ -69,7 +78,10 @@ jobs:
           disable-cache: true
           usesh: true
           release: "10.1"
-          run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+          run: |
+            cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+            echo "===== RTF_ flags in net/route.h ====="
+            grep -E '^#define[[:space:]]+RTF_' /usr/include/net/route.h || true
 
   openbsd:
     name: OpenBSD
@@ -84,4 +96,7 @@ jobs:
           disable-cache: true
           usesh: true
           release: "7.9"
-          run: cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+          run: |
+            cc -o rtprobe .github/layout-check/rtprobe.c && ./rtprobe
+            echo "===== RTF_ flags in net/route.h ====="
+            grep -E '^#define[[:space:]]+RTF_' /usr/include/net/route.h || true
