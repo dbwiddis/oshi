@@ -13,6 +13,8 @@
 #include <windows.h>
 #include <iphlpapi.h>
 #include <netioapi.h>
+#include <batclass.h>
+#include <setupapi.h>
 #include <winperf.h>
 
 #define HDR(s)    printf("  %s  [size=%zu align=%zu]\n", #s, sizeof(s), _Alignof(s))
@@ -75,6 +77,48 @@ int main(void) {
 
     HDR(PERF_COUNTER_BLOCK);
     F(PERF_COUNTER_BLOCK, ByteLength);
+
+    /* batclass.h - the battery IOCTL structs behind WindowsPowerSource. Reviewed by hand and found sound, but
+     * BATTERY_MANUFACTURE_DATE in particular is easy to get wrong: its fields run Day, Month, Year, not the other
+     * way round, and it is the only one of these that is not four-byte uniform. */
+    HDR(BATTERY_QUERY_INFORMATION);
+    F(BATTERY_QUERY_INFORMATION, BatteryTag);
+    F(BATTERY_QUERY_INFORMATION, InformationLevel);
+    F(BATTERY_QUERY_INFORMATION, AtRate);
+
+    HDR(BATTERY_INFORMATION);
+    F(BATTERY_INFORMATION, Capabilities);
+    F(BATTERY_INFORMATION, Technology);
+    F(BATTERY_INFORMATION, Chemistry);
+    F(BATTERY_INFORMATION, DesignedCapacity);
+    F(BATTERY_INFORMATION, FullChargedCapacity);
+    F(BATTERY_INFORMATION, DefaultAlert1);
+    F(BATTERY_INFORMATION, DefaultAlert2);
+    F(BATTERY_INFORMATION, CriticalBias);
+    F(BATTERY_INFORMATION, CycleCount);
+
+    HDR(BATTERY_WAIT_STATUS);
+    F(BATTERY_WAIT_STATUS, BatteryTag);
+    F(BATTERY_WAIT_STATUS, Timeout);
+    F(BATTERY_WAIT_STATUS, PowerState);
+    F(BATTERY_WAIT_STATUS, LowCapacity);
+    F(BATTERY_WAIT_STATUS, HighCapacity);
+
+    HDR(BATTERY_STATUS);
+    F(BATTERY_STATUS, PowerState);
+    F(BATTERY_STATUS, Capacity);
+    F(BATTERY_STATUS, Voltage);
+    F(BATTERY_STATUS, Rate);
+
+    HDR(BATTERY_MANUFACTURE_DATE);
+    F(BATTERY_MANUFACTURE_DATE, Day);
+    F(BATTERY_MANUFACTURE_DATE, Month);
+    F(BATTERY_MANUFACTURE_DATE, Year);
+
+    HDR(SP_DEVICE_INTERFACE_DATA);
+    F(SP_DEVICE_INTERFACE_DATA, cbSize);
+    F(SP_DEVICE_INTERFACE_DATA, InterfaceClassGuid);
+    F(SP_DEVICE_INTERFACE_DATA, Flags);
 
     /* iphlpapi / netioapi - where the hand-written OFFSET_ constants live */
     HDR(MIB_IF_ROW2);
