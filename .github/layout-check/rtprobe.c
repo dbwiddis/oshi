@@ -14,6 +14,7 @@
 #include <sys/sysctl.h>
 #include <net/route.h>
 #include <netinet/in.h>
+#include <net/if_dl.h>
 
 #define O(f) printf("  %-14s off=%3zu size=%2zu\n", #f, offsetof(struct rt_msghdr, f), \
                     sizeof(((struct rt_msghdr *)0)->f))
@@ -87,6 +88,10 @@ int main(void) {
     printf("RTAX_DST=%d GATEWAY=%d NETMASK=%d IFP=%d IFA=%d RTAX_MAX=%d\n", RTAX_DST, RTAX_GATEWAY, RTAX_NETMASK,
            RTAX_IFP, RTAX_IFA, RTAX_MAX);
     printf("RTF_UP=0x%x RTF_GATEWAY=0x%x RTF_HOST=0x%x\n", RTF_UP, RTF_GATEWAY, RTF_HOST);
+    printf("AF_INET=%d AF_INET6=%d AF_LINK=%d AF_UNSPEC=%d  RTM_GET=%d\n", AF_INET, AF_INET6, AF_LINK, AF_UNSPEC,
+           RTM_GET);
+    printf("sizeof(sockaddr_in)=%zu sizeof(sockaddr_in6)=%zu\n", sizeof(struct sockaddr_in),
+           sizeof(struct sockaddr_in6));
 
     int mib[6] = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_DUMP, 0 };
     size_t len = 0;
@@ -111,6 +116,29 @@ int main(void) {
         fit8 += walk_fits(rtm, 8);
         if (hdrlen_of(rtm) != sizeof(struct rt_msghdr)) {
             hdrlen_differs++;
+        }
+        p += rtm->rtm_msglen;
+    }
+    int shown = 0;
+    for (char *p = buf; p < buf + len && shown < 3;) {
+        struct rt_msghdr *rtm = (struct rt_msghdr *) p;
+        if (rtm->rtm_msglen == 0) {
+            break;
+        }
+        if (walk_fits(rtm, 8) || walk_fits(rtm, 4)) {
+            size_t unit = walk_fits(rtm, 4) && !walk_fits(rtm, 8) ? 4 : 8;
+            printf("  msg addrs=0x%x flags=0x%x:", rtm->rtm_addrs, rtm->rtm_flags);
+            char *sa = (char *) rtm + hdrlen_of(rtm);
+            for (int i = 0; i < RTAX_MAX; i++) {
+                if (!(rtm->rtm_addrs & (1 << i))) {
+                    continue;
+                }
+                struct sockaddr *s = (struct sockaddr *) sa;
+                printf(" RTAX%d[len=%d fam=%d]", i, s->sa_len, s->sa_family);
+                sa += roundup_to(s->sa_len, unit);
+            }
+            printf("\n");
+            shown++;
         }
         p += rtm->rtm_msglen;
     }
