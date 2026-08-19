@@ -23,6 +23,258 @@
 int main(void) {
     printf("# Windows SDK ground truth, %d-bit\n", (int)(sizeof(void *) * 8));
 
+    /* Every PF_* value winnt.h defines, so OSHI's feature enum can be checked against the SDK rather than memory.
+     * A name the SDK does not define prints as undefined; a value with no name printed is a genuine gap. */
+#define PF(name) do { \
+        printf("  %-46s = %d\n", #name, name); \
+    } while (0)
+    printf("# PF_* processor features defined by this SDK\n");
+#ifdef PF_FLOATING_POINT_PRECISION_ERRATA
+    PF(PF_FLOATING_POINT_PRECISION_ERRATA);
+#else
+    printf("  %-46s = undefined\n", "PF_FLOATING_POINT_PRECISION_ERRATA");
+#endif
+#ifdef PF_FLOATING_POINT_EMULATED
+    PF(PF_FLOATING_POINT_EMULATED);
+#else
+    printf("  %-46s = undefined\n", "PF_FLOATING_POINT_EMULATED");
+#endif
+#ifdef PF_COMPARE_EXCHANGE_DOUBLE
+    PF(PF_COMPARE_EXCHANGE_DOUBLE);
+#else
+    printf("  %-46s = undefined\n", "PF_COMPARE_EXCHANGE_DOUBLE");
+#endif
+#ifdef PF_MMX_INSTRUCTIONS_AVAILABLE
+    PF(PF_MMX_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_MMX_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_PPC_MOVEMEM_64BIT_OK
+    PF(PF_PPC_MOVEMEM_64BIT_OK);
+#else
+    printf("  %-46s = undefined\n", "PF_PPC_MOVEMEM_64BIT_OK");
+#endif
+#ifdef PF_ALPHA_BYTE_INSTRUCTIONS
+    PF(PF_ALPHA_BYTE_INSTRUCTIONS);
+#else
+    printf("  %-46s = undefined\n", "PF_ALPHA_BYTE_INSTRUCTIONS");
+#endif
+#ifdef PF_XMMI_INSTRUCTIONS_AVAILABLE
+    PF(PF_XMMI_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_XMMI_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_3DNOW_INSTRUCTIONS_AVAILABLE
+    PF(PF_3DNOW_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_3DNOW_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_RDTSC_INSTRUCTION_AVAILABLE
+    PF(PF_RDTSC_INSTRUCTION_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_RDTSC_INSTRUCTION_AVAILABLE");
+#endif
+#ifdef PF_PAE_ENABLED
+    PF(PF_PAE_ENABLED);
+#else
+    printf("  %-46s = undefined\n", "PF_PAE_ENABLED");
+#endif
+#ifdef PF_XMMI64_INSTRUCTIONS_AVAILABLE
+    PF(PF_XMMI64_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_XMMI64_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_SSE_DAZ_MODE_AVAILABLE
+    PF(PF_SSE_DAZ_MODE_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_SSE_DAZ_MODE_AVAILABLE");
+#endif
+#ifdef PF_NX_ENABLED
+    PF(PF_NX_ENABLED);
+#else
+    printf("  %-46s = undefined\n", "PF_NX_ENABLED");
+#endif
+#ifdef PF_SSE3_INSTRUCTIONS_AVAILABLE
+    PF(PF_SSE3_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_SSE3_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_COMPARE_EXCHANGE128
+    PF(PF_COMPARE_EXCHANGE128);
+#else
+    printf("  %-46s = undefined\n", "PF_COMPARE_EXCHANGE128");
+#endif
+#ifdef PF_COMPARE64_EXCHANGE128
+    PF(PF_COMPARE64_EXCHANGE128);
+#else
+    printf("  %-46s = undefined\n", "PF_COMPARE64_EXCHANGE128");
+#endif
+#ifdef PF_CHANNELS_ENABLED
+    PF(PF_CHANNELS_ENABLED);
+#else
+    printf("  %-46s = undefined\n", "PF_CHANNELS_ENABLED");
+#endif
+#ifdef PF_XSAVE_ENABLED
+    PF(PF_XSAVE_ENABLED);
+#else
+    printf("  %-46s = undefined\n", "PF_XSAVE_ENABLED");
+#endif
+#ifdef PF_ARM_VFP_32_REGISTERS_AVAILABLE
+    PF(PF_ARM_VFP_32_REGISTERS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_VFP_32_REGISTERS_AVAILABLE");
+#endif
+#ifdef PF_ARM_NEON_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_NEON_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_NEON_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_SECOND_LEVEL_ADDRESS_TRANSLATION
+    PF(PF_SECOND_LEVEL_ADDRESS_TRANSLATION);
+#else
+    printf("  %-46s = undefined\n", "PF_SECOND_LEVEL_ADDRESS_TRANSLATION");
+#endif
+#ifdef PF_VIRT_FIRMWARE_ENABLED
+    PF(PF_VIRT_FIRMWARE_ENABLED);
+#else
+    printf("  %-46s = undefined\n", "PF_VIRT_FIRMWARE_ENABLED");
+#endif
+#ifdef PF_RDWRFSGSBASE_AVAILABLE
+    PF(PF_RDWRFSGSBASE_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_RDWRFSGSBASE_AVAILABLE");
+#endif
+#ifdef PF_FASTFAIL_AVAILABLE
+    PF(PF_FASTFAIL_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_FASTFAIL_AVAILABLE");
+#endif
+#ifdef PF_ARM_DIVIDE_INSTRUCTION_AVAILABLE
+    PF(PF_ARM_DIVIDE_INSTRUCTION_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_DIVIDE_INSTRUCTION_AVAILABLE");
+#endif
+#ifdef PF_ARM_64BIT_LOADSTORE_ATOMIC
+    PF(PF_ARM_64BIT_LOADSTORE_ATOMIC);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_64BIT_LOADSTORE_ATOMIC");
+#endif
+#ifdef PF_ARM_EXTERNAL_CACHE_AVAILABLE
+    PF(PF_ARM_EXTERNAL_CACHE_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_EXTERNAL_CACHE_AVAILABLE");
+#endif
+#ifdef PF_ARM_FMAC_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_FMAC_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_FMAC_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_RDRAND_INSTRUCTION_AVAILABLE
+    PF(PF_RDRAND_INSTRUCTION_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_RDRAND_INSTRUCTION_AVAILABLE");
+#endif
+#ifdef PF_ARM_V8_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_V8_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_V8_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_RDTSCP_INSTRUCTION_AVAILABLE
+    PF(PF_RDTSCP_INSTRUCTION_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_RDTSCP_INSTRUCTION_AVAILABLE");
+#endif
+#ifdef PF_RDPID_INSTRUCTION_AVAILABLE
+    PF(PF_RDPID_INSTRUCTION_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_RDPID_INSTRUCTION_AVAILABLE");
+#endif
+#ifdef PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_MONITORX_INSTRUCTION_AVAILABLE
+    PF(PF_MONITORX_INSTRUCTION_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_MONITORX_INSTRUCTION_AVAILABLE");
+#endif
+#ifdef PF_SSSE3_INSTRUCTIONS_AVAILABLE
+    PF(PF_SSSE3_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_SSSE3_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_SSE4_1_INSTRUCTIONS_AVAILABLE
+    PF(PF_SSE4_1_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_SSE4_1_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_SSE4_2_INSTRUCTIONS_AVAILABLE
+    PF(PF_SSE4_2_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_SSE4_2_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_AVX_INSTRUCTIONS_AVAILABLE
+    PF(PF_AVX_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_AVX_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_AVX2_INSTRUCTIONS_AVAILABLE
+    PF(PF_AVX2_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_AVX2_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_AVX512F_INSTRUCTIONS_AVAILABLE
+    PF(PF_AVX512F_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_AVX512F_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_ERMS_AVAILABLE
+    PF(PF_ERMS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ERMS_AVAILABLE");
+#endif
+#ifdef PF_ARM_V82_DP_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_V82_DP_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_V82_DP_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_ARM_V83_JSCVT_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_V83_JSCVT_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_V83_JSCVT_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_ARM_SVE_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_SVE_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_SVE_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE
+    PF(PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE");
+#endif
+#ifdef PF_BMI2_INSTRUCTIONS_AVAILABLE
+    PF(PF_BMI2_INSTRUCTIONS_AVAILABLE);
+#else
+    printf("  %-46s = undefined\n", "PF_BMI2_INSTRUCTIONS_AVAILABLE");
+#endif
+
     /* winperf.h - the HKEY_PERFORMANCE_DATA blocks walked by HkeyPerformanceDataUtil. These are read by stepping
      * a pointer through a variable-length buffer, so a wrong offset here misreads the whole traversal rather than
      * one field. PERF_DATA_BLOCK is the one to look at first: SYSTEMTIME is followed by a LARGE_INTEGER, so where
