@@ -70,6 +70,8 @@ jobs:
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
           cl /nologo .github\layout-check\windows.c /Fe:layout-truth.exe /link iphlpapi.lib ws2_32.lib setupapi.lib
           layout-truth.exe > headers.txt
+          echo # PF_ processor feature defines, read straight out of winnt.h >> headers.txt
+          findstr /B /C:"#define PF_" "%UniversalCRTSdkDir%Include\%WindowsSDKVersion%um\winnt.h" >> headers.txt
           type headers.txt
 
       - name: Ground truth from the system headers (clang)
