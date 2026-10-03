@@ -6,6 +6,7 @@ package oshi.comparison;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
+import static oshi.comparison.ComparisonAssertions.record;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -403,7 +404,10 @@ class NativeComparisonTest {
         assertThat(ffmOs.getVersionInfo()).usingRecursiveComparison().isEqualTo(jnaOs.getVersionInfo());
         assertThat(ffmOs.getSystemBootTime()).isEqualTo(jnaOs.getSystemBootTime());
         // FFM called second, uptime should be >= JNA (allow 2s tolerance for clock resolution)
-        assertThat(ffmOs.getSystemUptime()).isGreaterThanOrEqualTo(jnaOs.getSystemUptime() - 2L);
+        long jnaSysUp = jnaOs.getSystemUptime();
+        long ffmSysUp = ffmOs.getSystemUptime();
+        record("delta.systemUptime", -2, ffmSysUp - jnaSysUp);
+        assertThat(ffmSysUp).isGreaterThanOrEqualTo(jnaSysUp - 2L);
         assertThat(ffmOs.isElevated()).isEqualTo(jnaOs.isElevated());
         assertThat(ffmOs.getProcessCount()).isGreaterThan(0);
         assertThat(ffmOs.getThreadCount()).isGreaterThan(0);
@@ -424,6 +428,15 @@ class NativeComparisonTest {
         }
         assertThat(jna).isNotNull();
         assertThat(ffm).isNotNull();
+        record("delta.process.kernelTime", 0, ffm.getKernelTime() - jna.getKernelTime());
+        record("delta.process.userTime", 0, ffm.getUserTime() - jna.getUserTime());
+        record("delta.process.contextSwitches", 0, ffm.getContextSwitches() - jna.getContextSwitches());
+        record("delta.process.voluntaryContextSwitches", 0,
+                ffm.getVoluntaryContextSwitches() - jna.getVoluntaryContextSwitches());
+        record("delta.process.involuntaryContextSwitches", 0,
+                ffm.getInvoluntaryContextSwitches() - jna.getInvoluntaryContextSwitches());
+        record("absdelta.process.upTime", isBsd() ? 2000 : 1500, Math.abs(ffm.getUpTime() - jna.getUpTime()));
+        record("absdelta.process.priority", 20, Math.abs(ffm.getPriority() - jna.getPriority()));
         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
         assertThat(ffm.getName()).isEqualTo(jna.getName());
         assertThat(ffm.getPath()).isEqualTo(jna.getPath());

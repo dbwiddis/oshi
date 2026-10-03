@@ -46,13 +46,26 @@ public final class ComparisonAssertions {
         }
         if (expected == 0 || actual == 0) {
             double nonZero = Math.max(Math.abs(expected), Math.abs(actual));
+            record("ratio0." + description, ratio, nonZero);
             assertThat(nonZero).as("%s: one value is 0, other is %.2f", description, nonZero)
                     .isLessThanOrEqualTo(ratio);
             return;
         }
         double min = Math.min(Math.abs(actual), Math.abs(expected));
         double max = Math.max(Math.abs(actual), Math.abs(expected));
+        record("ratio." + description, ratio, 1.0 - min / max);
         assertThat(min / max).as("%s: expected=%f, actual=%f", description, expected, actual)
                 .isGreaterThanOrEqualTo(1.0 - ratio);
+    }
+
+    /**
+     * Fork-only data collection: one line per observation, grepped out of CI logs.
+     *
+     * @param label the check
+     * @param bound the bound the check enforces
+     * @param value the observed deviation or delta
+     */
+    public static void record(String label, double bound, double value) {
+        System.out.println("RATIOLOG|" + label + "|" + bound + "|" + value);
     }
 }

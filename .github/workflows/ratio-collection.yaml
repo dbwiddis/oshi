@@ -1,0 +1,56 @@
+# Fork-only: collects comparison-test ratios and deltas for percentile analysis. Never merge upstream.
+name: Ratio Collection
+
+on:
+  push:
+    branches:
+      - ratio-collection
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: Fresh-JVM iterations per shard
+        default: '60'
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        shard: [1, 2, 3]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          cache: maven
+          distribution: temurin
+          java-version: 25
+      - name: Install
+        run: ./mvnw install -B -q -DskipTests -Djacoco.skip=true -Ddependency-check.skip=true
+      - name: Collect
+        run: |
+          out="ratios-${{ matrix.os }}-${{ matrix.shard }}"
+          mkdir -p "$out"
+          for i in $(seq 1 ${{ inputs.iterations || '60' }}); do
+            ./mvnw -B -o -pl oshi-benchmark test -Paggregate-coverage -Djacoco.skip=true \
+              -Ddependency-check.skip=true > iter.log 2>&1 && rc=0 || rc=$?
+            sed 's/\x1b\[[0-9;]*m//g' iter.log | grep -o 'RATIOLOG|.*' | sed "s/^/$i|/" >> "$out/ratios.txt" || true
+            sed 's/\x1b\[[0-9;]*m//g' iter.log | grep -E '\[X\]|expected|Expecting' | sed "s/^/$i|/" >> "$out/failures.txt" || true
+            echo "$i|rc=$rc" >> "$out/runs.txt"
+          done
+          echo "lines: $(wc -l < "$out/ratios.txt"), failed iterations: $(grep -vc 'rc=0' "$out/runs.txt" || true)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ratios-${{ matrix.os }}-${{ matrix.shard }}
+          path: ratios-*

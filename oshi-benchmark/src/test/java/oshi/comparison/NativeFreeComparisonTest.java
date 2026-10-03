@@ -89,9 +89,12 @@ class NativeFreeComparisonTest {
         assertThat(nfOs.getBitness()).isEqualTo(jnaOs.getBitness());
         assertThat(nfOs.getVersionInfo()).usingRecursiveComparison().isEqualTo(jnaOs.getVersionInfo());
         assertThat(nfOs.getSystemBootTime()).isEqualTo(jnaOs.getSystemBootTime());
-        assertThat(nfOs.getSystemUptime()).isGreaterThanOrEqualTo(jnaOs.getSystemUptime());
+        long jnaSysUp = jnaOs.getSystemUptime();
+        long nfSysUp = nfOs.getSystemUptime();
+        ComparisonAssertions.record("nf.delta.systemUptime", 0, nfSysUp - jnaSysUp);
+        assertThat(nfSysUp).isGreaterThanOrEqualTo(jnaSysUp);
         assertThat(nfOs.getProcessId()).isEqualTo(jnaOs.getProcessId());
-        assertWithinRatio(nfOs.getThreadCount(), jnaOs.getThreadCount(), 0.1, "threadCount");
+        assertWithinRatio(nfOs.getThreadCount(), jnaOs.getThreadCount(), 0.1, "nf.threadCount");
         if (isNetBsd()) {
             // The LWP ID needs a native call, so the NF provider reports it as unknown
             assertThat(nfOs.getThreadId()).as("threadId").isZero();
@@ -132,7 +135,7 @@ class NativeFreeComparisonTest {
     void processorFrequencies() {
         CentralProcessor jna = jnaHal.getProcessor();
         CentralProcessor nf = nfHal.getProcessor();
-        assertWithinRatio(nf.getMaxFreq(), jna.getMaxFreq(), 0.10, "maxFreq");
+        assertWithinRatio(nf.getMaxFreq(), jna.getMaxFreq(), 0.10, "nf.maxFreq");
         long[] jnaFreqs = jna.getCurrentFreq();
         long[] nfFreqs = nf.getCurrentFreq();
         assertThat(nfFreqs).hasSameSizeAs(jnaFreqs);
@@ -158,7 +161,7 @@ class NativeFreeComparisonTest {
         GlobalMemory nf = nfHal.getMemory();
         assertThat(nf.getTotal()).isEqualTo(jna.getTotal());
         assertThat(nf.getPageSize()).isEqualTo(jna.getPageSize());
-        assertWithinRatio(nf.getAvailable(), jna.getAvailable(), 0.25, "availableMemory");
+        assertWithinRatio(nf.getAvailable(), jna.getAvailable(), 0.25, "nf.availableMemory");
     }
 
     @Test
@@ -166,7 +169,7 @@ class NativeFreeComparisonTest {
         VirtualMemory jna = jnaHal.getMemory().getVirtualMemory();
         VirtualMemory nf = nfHal.getMemory().getVirtualMemory();
         assertThat(nf.getSwapTotal()).isEqualTo(jna.getSwapTotal());
-        assertWithinRatio(nf.getSwapUsed(), jna.getSwapUsed(), 0.25, "swapUsed");
+        assertWithinRatio(nf.getSwapUsed(), jna.getSwapUsed(), 0.25, "nf.swapUsed");
     }
 
     // ---- OS: Current Process ----
@@ -266,7 +269,7 @@ class NativeFreeComparisonTest {
             assertThat(nf.getType()).isEqualTo(j.getType());
             assertThat(nf.getVolume()).isEqualTo(j.getVolume());
             assertThat(nf.getTotalSpace()).isEqualTo(j.getTotalSpace());
-            assertWithinRatio(nf.getUsableSpace(), j.getUsableSpace(), 0.25, "usableSpace(" + j.getMount() + ")");
+            assertWithinRatio(nf.getUsableSpace(), j.getUsableSpace(), 0.25, "nf.usableSpace(" + j.getMount() + ")");
         }
     }
 
