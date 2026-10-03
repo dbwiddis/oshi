@@ -437,6 +437,27 @@ class NativeComparisonTest {
                 ffm.getInvoluntaryContextSwitches() - jna.getInvoluntaryContextSwitches());
         record("absdelta.process.upTime", isBsd() ? 2000 : 1500, Math.abs(ffm.getUpTime() - jna.getUpTime()));
         record("absdelta.process.priority", 20, Math.abs(ffm.getPriority() - jna.getPriority()));
+        if (PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS) {
+            // Fork-only probe: does a resident-memory jump between the first JNA and FFM reads persist?
+            long t0 = System.nanoTime();
+            record("rss.p0.jna", 0, jna.getResidentMemory());
+            record("rss.p0.ffm", 0, ffm.getResidentMemory());
+            record("rss.p0.jnaPrivate", 0, jna.getPrivateResidentMemory());
+            record("rss.p0.ffmPrivate", 0, ffm.getPrivateResidentMemory());
+            record("rss.p0.upTime", 0, jna.getUpTime());
+            for (int k = 1; k <= 4; k++) {
+                OSProcess j = jnaOs.getProcess(pid);
+                OSProcess f = ffmOs.getProcess(pid);
+                if (j == null || f == null) {
+                    continue;
+                }
+                record("rss.p" + k + ".ms", 0, (System.nanoTime() - t0) / 1_000_000L);
+                record("rss.p" + k + ".jna", 0, j.getResidentMemory());
+                record("rss.p" + k + ".ffm", 0, f.getResidentMemory());
+                record("rss.p" + k + ".jnaPrivate", 0, j.getPrivateResidentMemory());
+                record("rss.p" + k + ".ffmPrivate", 0, f.getPrivateResidentMemory());
+            }
+        }
         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
         assertThat(ffm.getName()).isEqualTo(jna.getName());
         assertThat(ffm.getPath()).isEqualTo(jna.getPath());

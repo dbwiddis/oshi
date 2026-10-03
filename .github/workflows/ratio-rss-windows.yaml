@@ -1,0 +1,52 @@
+# Fork-only: Windows resident-memory probe (repeated JNA/FFM pairs in currentProcess). Never merge upstream.
+name: Ratio RSS Windows
+
+on:
+  push:
+    branches:
+      - ratio-collection
+    paths:
+      - .github/workflows/ratio-rss-windows.yaml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          cache: maven
+          distribution: temurin
+          java-version: 25
+      - name: Install
+        run: ./mvnw install -B -q -DskipTests -Djacoco.skip=true -Ddependency-check.skip=true
+      - name: Collect
+        run: |
+          out="ratios-windows-${{ matrix.shard }}"
+          mkdir -p "$out"
+          for i in $(seq 1 60); do
+            ./mvnw -B -pl oshi-benchmark test -Paggregate-coverage -Djacoco.skip=true \
+              -Ddependency-check.skip=true > iter.log 2>&1 && rc=0 || rc=$?
+            sed 's/\x1b\[[0-9;]*m//g' iter.log | grep -o 'RATIOLOG|.*' | sed "s/^/$i|/" >> "$out/ratios.txt" || true
+            echo "$i|rc=$rc" >> "$out/runs.txt"
+          done
+          echo "lines: $(wc -l < "$out/ratios.txt")"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ratios-windows-${{ matrix.shard }}
+          path: ratios-*
