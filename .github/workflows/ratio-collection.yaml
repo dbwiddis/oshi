@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - ratio-collection
+    paths:
+      - .github/workflows/ratio-collection.yaml
   workflow_dispatch:
     inputs:
       iterations:

@@ -1,0 +1,148 @@
+# Fork-only: comparison-test ratio collection on the Unix VMs. Setup copied from pr.yaml. Never merge upstream.
+name: Ratio Collection VM
+
+on:
+  push:
+    branches:
+      - ratio-collection
+    paths:
+      - .github/workflows/ratio-collection-vm.yaml
+      - .github/ratio-loop.sh
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ITERATIONS: '30'
+
+jobs:
+  freebsd:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: vmactions/freebsd-vm@a2f9a41fa97f6848b8c3b791087dfcdaa5b473ff # v1
+        with:
+          disable-cache: true
+          usesh: true
+          copyback: true
+          envs: 'ITERATIONS'
+          prepare: |
+            pkg install -y curl
+            pkg install -y openjdk25
+          run: |
+            export JAVA_HOME=/usr/local/openjdk25
+            export PATH=$JAVA_HOME/bin:$PATH
+            sh .github/ratio-loop.sh freebsd "$ITERATIONS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ratios-freebsd
+          path: ratios-*
+
+  openbsd:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: vmactions/openbsd-vm@5f7b2c933b8846a138361d6843c52af4bef5d945 # v1
+        with:
+          release: "7.9"
+          usesh: false
+          mem: 2048
+          copyback: true
+          envs: 'ITERATIONS'
+          prepare: |
+            pkg_add curl
+            pkg_add jdk%25
+          run: |
+            export JAVA_HOME=$(ls -d /usr/local/jdk-* | tail -1)
+            export PATH=$JAVA_HOME/bin:$PATH
+            sh .github/ratio-loop.sh openbsd "$ITERATIONS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ratios-openbsd
+          path: ratios-*
+
+  netbsd:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: vmactions/netbsd-vm@c8a0d7ddb84619a7a8cc4e652efa7950b3fd9f92 # v1
+        with:
+          disable-cache: true
+          release: "10.1"
+          usesh: true
+          copyback: true
+          envs: 'ITERATIONS'
+          prepare: |
+            pkg_add curl
+            pkg_add java-jna
+            if pkg_add openjdk25 2>/dev/null; then
+              echo "using pkgsrc openjdk25"
+            else
+              BS=bootstrap-jdk-1.25.0.4.7-netbsd-9-amd64-20260908.tar.xz
+              SHA=4587a19dea5edd24ccafb251221ee6177e788ae9ad6c0bf49be11ef900bbe7f75a0db77eb151edf12f8378aab8a7b9651043f31e98864317faf3ecb2533b34eb
+              URL=https://github.com/dbwiddis/oshi/releases/download/netbsd-jdk25-bootstrap/$BS
+              curl -sSfLo /tmp/$BS "$URL" || { echo "FATAL: could not fetch $URL"; exit 1; }
+              [ "$(cksum -a sha512 -n /tmp/$BS | cut -d' ' -f1)" = "$SHA" ] || { echo "FATAL: checksum mismatch for $BS"; exit 1; }
+              mkdir -p /opt && tar -xJf /tmp/$BS -C /opt
+            fi
+          run: |
+            if [ -d /usr/pkg/java/openjdk25 ]; then
+              export JAVA_HOME=/usr/pkg/java/openjdk25
+            else
+              export JAVA_HOME=/opt/bootstrap
+              export LD_LIBRARY_PATH=$JAVA_HOME/lib:$JAVA_HOME/lib/server
+            fi
+            export PATH=$JAVA_HOME/bin:$PATH
+            export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
+            mount -t procfs procfs /proc 2>/dev/null || true
+            sh .github/ratio-loop.sh netbsd "$ITERATIONS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ratios-netbsd
+          path: ratios-*
+
+  openindiana:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: vmactions/openindiana-vm@d82e6302d027df92e66e4fec862e5236c89b305f # v1
+        with:
+          mem: 8192
+          cpu: 2
+          copyback: true
+          disable-cache: true
+          envs: 'ITERATIONS'
+          prepare: |
+            pkg install openjdk25
+          run: |
+            export JAVA_HOME=/usr/jdk/openjdk25
+            export PATH=$JAVA_HOME/bin:$PATH
+            export LD_PRELOAD_64=libumem.so.1
+            export UMEM_OPTIONS=backend=mmap
+            export _JAVA_OPTIONS="-Xmx1g"
+            sh .github/ratio-loop.sh openindiana "$ITERATIONS" \
+                -Djunit.parallel.executor-service=FORK_JOIN_POOL \
+                -Djunit.parallel.strategy=fixed \
+                -Djunit.parallel.fixed.parallelism=1 \
+                -Djunit.parallel.fixed.max-pool-size=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ratios-openindiana
+          path: ratios-*
