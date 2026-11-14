@@ -3,8 +3,12 @@ on: push
 permissions:
   contents: read
 jobs:
-  winarm:
-    runs-on: windows-11-arm
+  win:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [windows-11-arm, windows-latest]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -15,11 +19,14 @@ jobs:
       - shell: pwsh
         run: |
           ./mvnw -B -q install -DskipTests "-Dmaven.gitcommitid.skip=true" "-Djacoco.skip=true" "-Ddependency-check.skip=true" "-Dmaven.javadoc.skip=true" -pl oshi-core,oshi-core-ffm -am
-          $p = Start-Process -FilePath "cmd.exe" -ArgumentList '/c','mvnw.cmd -B -q exec:java -pl oshi-core -Dexec.mainClass=oshi.SystemInfoTest -Dexec.classpathScope=test -Dmaven.gitcommitid.skip=true > jna.txt 2>&1' -PassThru -NoNewWindow
-          if (-not $p.WaitForExit(240000)) {
-            echo "=== STILL RUNNING after 4 min; thread dumps:"
-            Get-Process java -ErrorAction SilentlyContinue | ForEach-Object { & "$env:JAVA_HOME\bin\jstack.exe" $_.Id }
-            Stop-Process -Id $p.Id -Force
-            Get-Process java -ErrorAction SilentlyContinue | Stop-Process -Force
+          foreach ($m in @(@('oshi-core','oshi.SystemInfoTest','jna.txt'), @('oshi-core-ffm','oshi.ffm.SystemInfoTest','ffm.txt'))) {
+            $start = Get-Date
+            $p = Start-Process -FilePath "cmd.exe" -ArgumentList '/c',("mvnw.cmd -B -q exec:java -pl " + $m[0] + " -Dexec.mainClass=" + $m[1] + " -Dexec.classpathScope=test -Dmaven.gitcommitid.skip=true -Dorg.slf4j.simpleLogger.log.oshi.util=info > " + $m[2] + " 2>&1") -PassThru -NoNewWindow
+            if ($p.WaitForExit(300000)) { echo ("=== " + $m[0] + " exited after " + ((Get-Date) - $start).TotalSeconds + " s") }
+            else {
+              echo ("=== " + $m[0] + " STILL RUNNING after 5 min; non-daemon threads:")
+              Get-Process java -ErrorAction SilentlyContinue | ForEach-Object { & "$env:JAVA_HOME\bin\jstack.exe" $_.Id | Select-String -Pattern '^"' | Where-Object { $_ -notmatch 'daemon' } }
+              Get-Process java -ErrorAction SilentlyContinue | Stop-Process -Force
+            }
+            echo ("=== " + $m[0] + " report:"); Select-String -Path $m[2] -Pattern 'Identifier|ProcessorID|Processor ID|Stepping|Family|Microarch|Cobalt|ARMv8|Intel|AMD|Processor ' | Select-Object -First 15 | ForEach-Object { $_.Line }
           }
-          echo "=== JNA OUTPUT (head)"; Get-Content jna.txt -TotalCount 120
