@@ -1,0 +1,22 @@
+name: Capture ARM64 Windows and illumos CPU
+on: push
+permissions:
+  contents: read
+jobs:
+  winarm:
+    runs-on: windows-11-arm
+    steps:
+      - shell: pwsh
+        run: |
+          echo "===REG"; reg query "HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0"
+          echo "===WMI"; Get-CimInstance Win32_Processor | Format-List Name,Manufacturer,Caption,Description,Family,Level,Revision,Stepping,ProcessorId,Architecture,MaxClockSpeed,CurrentClockSpeed,NumberOfCores,NumberOfLogicalProcessors
+          echo "===PERF"; Get-Counter -Counter "\Processor Information(_Total)\% Processor Performance","\Processor Information(_Total)\Processor Frequency","\Processor Information(_Total)\% of Maximum Frequency" -SampleInterval 1 -MaxSamples 2 | ForEach-Object { $_.CounterSamples | Format-Table Path,CookedValue -AutoSize }
+  illumos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: vmactions/openindiana-vm@b0669479e0325a25198dc7ed2a4b6089e98f91b3
+        with:
+          run: |
+            set +e
+            echo ===PSRINFO; psrinfo -pv | head -8
+            echo ===PICL; /usr/sbin/prtpicl -v -c cpu | grep -i -E "cache|assoc|tlb|:name|brand" | head -60
